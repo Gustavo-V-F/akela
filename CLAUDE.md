@@ -122,7 +122,7 @@ Why reconciliation is needed: with a single voter, writes commit on it alone and
 8. **Website orders are a saga** driven by the Orchestrator: order created `PENDING` → expiring conditional reservation at each Location via its Cloud Node → if any refuses/unreachable, compensate (release) and offer to proceed with what's available or cancel → payment: authorize → confirm reservations at all Locations → capture (if a confirmation fails, void the authorization; no refund needed) → after all confirmations (point of no return), retry capture until it succeeds. Every call carries the order ID (idempotent, no double reservation). Reservation TTL > confirmation window. Each Location records its share of the order; the cloud records the payment.
 9. **Fiscal documents are issued and transmitted only by the Location app** (same code in every installation; deployment/config differs). Central Registry, CDC Receiver and Consolidated Postgres never issue them; Postgres receives already-issued documents via CDC.
 10. **Fiscal conformance = the authorizer's response** in homologation (test) and production environments. Third-party library tests are only input cases; expected results always come from the authorizer.
-11. **mTLS everywhere** for rqlite (node↔node Raft and client↔node API), inside Locations and with the cloud, using certificates from the Location's trust scheme (see [Location trust schemes](#location-trust-schemes)); in scheme 1, blocking a machine removes its fingerprint from the bundle. `-node-verify-client` and `-http-verify-client` on for all nodes; plus rqlite `-auth` with least-privilege users.
+11. **mTLS everywhere** for rqlite (node↔node Raft and client↔node API), inside Locations and with the cloud, using certificates from the Location's trust scheme (see [Location trust schemes](#location-trust-schemes)); in scheme 1, blocking a machine removes its certificate from the approved list and the agent restarts `rqlited` one node at a time. `-node-verify-client` and `-http-verify-client` on for all nodes; plus rqlite `-auth` with least-privilege users.
 12. **Certificates have no CRL/OCSP endpoints** (so no verifier, including Windows', tries to reach them offline). Revocation is **passive**: step-ca refuses renewal. Validity exceeds the longest accepted outage with margin (e.g. 90 days for up to 30 days offline). Renewal at ~2/3 of validity (`step ca renew --daemon`, `--exec` restarts `rqlited`). Offline validation is local (chain to installed root, dates vs. local clock).
 13. **Root CA key is offline**, used only to sign intermediates, never automatically, with a multi-person procedure. Intermediate key online in step-ca with strong password, preferably in KMS/HSM. JWK provisioner private key lives in OpenBao and is read only by the Central Registry.
 14. **Let's Encrypt only on public endpoints** (website, public cloud API, Keycloak) behind Caddy. **The Cloud Node is not behind Caddy**: it is exposed on its own port with rqlite mTLS, because a TLS-terminating proxy would prevent client-cert verification.
@@ -243,9 +243,26 @@ Each customer chooses how its Locations get certificates and membership. Traffic
 
 | Scheme | Trust anchor | Membership, generation, reserved series | Cloud Node, CDC, website |
 | --- | --- | --- | --- |
-| 1. Local, no CA node | Each machine's self-signed certificate; a manager approves the machine and its fingerprint is pinned in a bundle every node trusts | Registry tables in the Location Cluster | None |
-| 2. Local with CA node | step-ca on a fixed machine of the Location | Registry tables in the Location Cluster | None |
-| 3. Local with CA node in the cloud | The customer's cloud step-ca | Central Registry | Yes |
+| 1. Local without node CA | Approved list: each machine's own self-signed certificate, approved by a manager (see below) | Registry tables in the Location Cluster | None |
+| 2. Local with node CA | step-ca on a fixed machine of the Location | Registry tables in the Location Cluster | None |
+| 3. Local with node CA in the cloud | The customer's cloud step-ca | Central Registry | Yes |
+
+**Scheme 1 approved list:**
+- Each machine generates its own self-signed certificate with long validity (e.g. 10 years). There is no renewal.
+- Installation: the new machine shows a code on screen. The manager logs in with their password on an already-approved machine, checks the code and approves.
+- First machine of the Location: the manager login is created during its installation, and it becomes the first approved machine.
+- The approved certificate is stored in the Location Cluster's machine registry table.
+- The Location Agent builds rqlite's trust file on each node (`-node-ca-cert` and `-http-ca-cert`) with every approved certificate.
+- Then the agent restarts `rqlited` one node at a time. The Leader goes last, after transferring leadership.
+- Why (confirmed in rqlite source, master `4452a98`, 2026-11-19):
+  - the CA file is read only at startup (`setCertPool` in `internal/rtls/config.go`);
+  - there is no CRL or OCSP;
+  - only the node's own certificate and key are reloaded (`internal/rtls/reloader.go`, since 8.37.0).
+- Blocking, including theft: if the machine is a voter, it stops voting first (transferring leadership if it is the Leader), and voters are re-chosen by stability, keeping the largest odd number of the most stable machines, so a less stable voter may be demoted too. Then the agent removes its certificate from the list and runs the same restart round. There is no CA change.
+- Phones are not in the list: they talk to the Location app API (Axum) on an approved machine, never to rqlite. The Location app approves and blocks phones and reloads its own client list without restart.
+- A machine that was off during a change fetches the current list from another approved node before starting `rqlited`.
+- With a single voter, its restart stops writes for a few seconds. This is accepted.
+- Optional future improvement, not a dependency: propose to rqlite that it reload the CA file without restart.
 
 - Without a Cloud Node (schemes 1 and 2) the Location always uses the offline voting rules: the largest odd number of primary votes.
 - Moving 1 → 2 or 2 → 3 re-enrolls machines one at a time under the new anchor; nodes trust both anchors during the transition, as in a root rollover. In 2 → 3 the local registry tables are copied into the Central Registry, which becomes the source.
@@ -280,7 +297,7 @@ The Location is the primary focus; the cloud is its evolution.
 
 ### 1. Preparation
 
-**1.1 Spec review.** Fix errors and gaps in the architecture before writing code. Feasibility tests in section 2 use a lab CA; the trust schemes come in 3.1 and 4.2.
+**1.1 Spec review.** Fix errors and gaps in the architecture before writing code. Feasibility tests in section 2 use a lab CA (except the scheme 1 approved-list test in 2.1) and a lab manager password; local login comes in 3.1 and the trust schemes in 3.2 and 4.2.
 
 Done when every invariant is a testable criterion and every gap has a decision or an owner.
 
@@ -321,7 +338,7 @@ Done when each document and the acknowledgement can send a test request and get 
 - emit CDC, including with a new `service_id`;
 - have a follower forward writes to the Leader;
 - read with a chosen consistency level per call;
-- trust a bundle of pinned self-signed certificates and reload a changed CA file without restart (automatic reload of node certificates and keys exists since 8.37.0).
+- trust a list of approved self-signed certificates, applying each approval and block by restarting `rqlited` one node at a time (Leader last, after transferring leadership), including with a single voter and with a machine that was off during the change (rqlite reads the CA file only at startup).
 
 Done when a "capability → exists / how / limits" table exists, backed by one automated test per item.
 
@@ -364,9 +381,9 @@ Done when installation works offline and the laptop is always demoted before it 
 
 ### 3. Location product
 
-**3.1 Local trust schemes.** Schemes 1 (pinned self-signed certificates) and 2 (step-ca on a fixed machine), with the registry tables in the Location Cluster, manager approval, blocking, and the 1 → 2 move. Done when a Location under each scheme enrolls, blocks and re-enrolls machines with no internet at all.
+**3.1 Identity and permissions at the Location.** Akela is local-first: users, password hashes and hierarchical permissions live in the Location Cluster, and the Location app validates login locally, online or offline. A user may exist only at the Location. Keycloak is optional and only for cloud access; how a local user links to a cloud identity is decided here.
 
-**3.2 Identity and permissions at the Location.** Akela is local-first: users, password hashes and hierarchical permissions live in the Location Cluster, and the Location app validates login locally, online or offline. A user may exist only at the Location. Keycloak is optional and only for cloud access; how a local user links to a cloud identity is decided here.
+**3.2 Local trust schemes.** Schemes 1 (approved list of self-signed certificates) and 2 (step-ca on a fixed machine), with the registry tables in the Location Cluster, manager approval, blocking, and the 1 → 2 move. Done when a Location under each scheme enrolls, blocks and re-enrolls machines with no internet at all.
 
 **3.3 Complete fiscal core.**
 - **Documents:** NF-e, NFC-e, NFS-e, MDF-e, CT-e first; then any other document the law defines, per the fiscal-core scope.
