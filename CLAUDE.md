@@ -39,7 +39,7 @@ Use exactly these terms, consistently, in code and docs.
 | Cloud Node | One rqlite node in the cloud per Location, member of that Location Cluster. |
 | Central Registry | Cloud registry of customers, Locations, machines, credentials, roles, cluster generation and schema version. |
 | CDC Receiver | Cloud service that receives change events from each Location Cluster and writes them to the Consolidated Postgres. |
-| Consolidated Postgres | Cloud database with all Locations of a customer; used by the website and reports. Never used to validate. |
+| Consolidated Postgres | Cloud database with all Locations of a customer; used by the website and reports; also holds the Orchestrator's own tables (order state, payment), which CDC never writes. Never used to validate Location stock or finances. |
 | Orchestrator | Cloud service that drives website orders across Locations (saga). |
 | Generation | Number that changes every time a Location Cluster is recreated; part of the CDC `service_id`. |
 | Customer | The contracting company (tenant). Each customer has its own Locations, CA and data. |
@@ -61,7 +61,7 @@ Use exactly these terms, consistently, in code and docs.
 
 - **Location Agent** (every fixed machine and laptop): install and keep `rqlited` running as a service on Windows/macOS/Linux; detect eligibility (Location network/cable, AC power, stable latency to other voters); detect imminent departure (shutdown, unplug, network change, suspend) and request demotion first; monitor disk (CDC queue grows during outages); report machine state to the Membership Manager; automatically rejoin a new-generation cluster while keeping old data aside (exception: the old Leader waits for reconciliation); obtain and renew certificates.
 - **Membership Manager** (alongside each Leader): pick voters by priority (server → stable desktops → eligible laptops); keep the voter total odd, one change at a time (`.promote` / `.demote` or the API); hysteresis (promote only after minutes of stability, don't demote for short absences); shrink to primary votes after a few seconds without cloud and restore when it returns; auto-remove unreachable nodes with conservative timeouts identical on all voters, disabled for the Cloud Node; leadership watcher.
-- **Location app** (workstations and mobile): follows the invariants below (only the Leader validates, rqlite only through its HTTP API, no interactive transactions); degraded mode (no majority → validations blocked with a clear message); mobile talks to a local node on the Location network, otherwise to the Cloud Node; "Take over as primary" button protected by manager password, showing each present laptop's applied index.
+- **Location app** (workstations and mobile): follows the core rules below (only the Leader validates, rqlite only through its HTTP API, no interactive transactions); degraded mode (no majority → validations blocked with a clear message); mobile talks to a local node on the Location network, otherwise to the Cloud Node; "Take over as primary" button protected by manager password, showing each present laptop's applied index.
 - **Cloud services** (Rust): Central Registry, CDC Receiver, Orchestrator, migration coordinator, authorizer-status service.
 
 ## Voting and authority rules
@@ -108,25 +108,40 @@ Why reconciliation is needed: with a single voter, writes commit on it alone and
 
 **Location disaster** (destroyed, stolen, hardware lost): a person confirms out-of-band (phone, visit) → declare the disaster in the Central Registry with a new generation and revoke old nodes' credentials → copy the Cloud Node into a new cloud cluster, which becomes that Location's authority → the CDC Receiver accepts the new generation's `service_id` → new machines join that cluster and the watcher moves leadership back to the Location → anything old machines did after the declaration is divergence, reconciled manually.
 
-## Invariants (must not be violated)
+## Core rules (must never be broken)
 
 1. **The Leader of the Location Cluster is the only authority** for that Location's stock and finances. The cloud, the Consolidated Postgres and the website never validate.
+   - *Test:* With no majority, every stock or finance write fails, whichever node, Cloud Node or cloud service sends it. With a Leader, a conditional write (e.g. reserve-if-free) gives the same result whichever node receives it.
 2. **rqlite only through its HTTP API.** Never open the SQLite file directly.
+   - *Test:* CI check: no in-house crate depends on a SQLite library (`rusqlite`, `libsqlite3-sys`, sqlx `sqlite` feature) or opens files in the rqlite data directory.
 3. **No interactive transactions** (rqlite has none): business rules must be single conditional statements or atomic batches (e.g. "reserve if free" is one conditional statement). Read consistency level is chosen per use case.
+   - *Test:* Each business rule has a concurrent-write test (many clients racing on different nodes, as in 2.5, business rules without transactions) with no double reservation, duplicate number or duplicate document. The rqlite client has no begin/commit API, and every read call must state its consistency level (no default).
 4. **Technical keys are UUIDv7** (RFC 9562), generated by the app at write time, before sending to the Leader (`uuid` crate, `Uuid::now_v7()`). Same key flows to Postgres unchanged, stored in `uuid` columns (binary), never as text. Relations use only technical keys. Never use local sequences as IDs. The writing machine is stored in its own column, not in the key. Clock skew affects ordering only, not uniqueness.
+   - *Test:* Schema check: every primary and foreign key is a UUID (Postgres `uuid`, never text), no table uses AUTOINCREMENT, sequences or serial, and the writing machine has its own column. Generated keys are version 7. A CDC round-trip test finds each key byte-for-byte equal in the Location Cluster and in Postgres.
 5. **Readable codes** (orders, Buyers) are assigned by the Leader, sequential per Location, format `<Location>-<generation>-<type><seq>` (e.g. order `L03-G1-P000123`, Buyer `L03-G1-C000045`). Unique per (Location, generation, type, sequence). Never a key, never used in relations. A machine without majority cannot write, hence cannot issue codes.
    - Normal generation: issued by the Central Registry (e.g. `G1`).
    - Generation from "Take over as primary": previous generation + the taking machine's code (e.g. `G1M07`); machine codes are assigned at enrollment and unique per Location. After reconciliation the Central Registry records the generation now in force.
+   - *Test:* Concurrent creation through different nodes yields unique codes matching the format, with a unique constraint on (Location, generation, type, sequence). Creation fails without majority. Schema check: no foreign key or join uses a readable-code column.
 6. **CDC dedupe** by key (`service_id` including generation, Raft index); ignore indexes ≤ the last processed for that key. Respond **2xx only after the Postgres commit**. Each INSERT/UPDATE/DELETE event (with before/after values) becomes SQL on Postgres.
+   - *Test:* Replaying events (duplicates, and indexes lower than the last processed) leaves Postgres unchanged. Killing the CDC Receiver after the Postgres commit but before the response, then retrying, creates no duplicate. A failed Postgres commit never gets a 2xx. A new generation whose indexes restart is accepted.
 7. **Schema migrations** (CDC does not carry schema changes) are applied via the rqlite API to every Location Cluster and to the Consolidated Postgres, with the version tracked in the Central Registry. Offline Locations get the migration on reconnect, before resuming events.
-8. **Website orders are a saga** driven by the Orchestrator: order created `PENDING` → expiring conditional reservation at each Location via its Cloud Node → if any refuses/unreachable, compensate (release) and offer to proceed with what's available or cancel → payment: authorize → confirm reservations at all Locations → capture (if a confirmation fails, void the authorization; no refund needed) → after all confirmations (point of no return), retry capture until it succeeds. Every call carries the order ID (idempotent, no double reservation). Reservation TTL > confirmation window. Each Location records its share of the order; the cloud records the payment.
+   - *Test:* A Location offline during a migration reaches the Central Registry's schema version on reconnect before the CDC Receiver accepts any new event from it, and the Consolidated Postgres is at the same version.
+8. **Website orders are a saga** driven by the Orchestrator: order created `PENDING` → expiring conditional reservation at each Location via its Cloud Node → if any Location refuses or is unreachable, the buyer is told which items failed; the successful reservations stay held for that buyer in a pending status until they choose to proceed with what's available or cancel (cancel releases them), and expire if the buyer does not answer → payment: authorize → confirm reservations at all Locations → capture (if a confirmation fails, undo the confirmations already made at the other Locations, then void the authorization; no refund needed) → after all confirmations (point of no return), retry capture while the payment authorization is valid (validity comes from the payment provider's configuration); near expiry, alert a person; if it expires, the order moves to a "payment pending" queue in the admin UI, where a person charges the buyer again (e.g. payment link or Pix); if the buyer refuses or does not pay in time, the person cancels the order, which undoes the confirmations and releases the stock like a compensation, and arranges a return if the goods already left. Every call carries the order ID (idempotent, no double reservation). Reservation TTL > payment authorization time + confirmation window. Each Location records its share of the order; the Orchestrator records the order state and the payment in its own tables in the Consolidated Postgres.
+   - *Test:* Fault injection at every step (Location refuses or is unreachable, payment fails, a confirmation fails, the Orchestrator crashes and restarts) never yields a double reservation, a charge without stock or a stuck reservation (as in 4.3, order saga). Repeating any call with the same order ID has no extra effect. Config check: reservation TTL > payment authorization time + confirmation window.
 9. **Fiscal documents are issued and transmitted only by the Location app** (same code in every installation; deployment/config differs). Central Registry, CDC Receiver and Consolidated Postgres never issue them; Postgres receives already-issued documents via CDC.
+   - *Test:* CI check: the fiscal issuance and transmission code is a dependency only of the Location app; no cloud service holds an issuer's digital certificate.
 10. **Fiscal conformance = the authorizer's response** in homologation (test) and production environments. Third-party library tests are only input cases; expected results always come from the authorizer.
+   - *Test:* Every fiscal test's expected result is a stored reference case (sent XML plus the authorizer's status code and reason); CI fails if a fiscal test has an expected result without one. On each new Technical Note or schema package, the reference cases are resent in homologation and the responses compared.
 11. **mTLS everywhere** for rqlite (node↔node Raft and client↔node API), inside Locations and with the cloud, using certificates from the Location's trust scheme (see [Location trust schemes](#location-trust-schemes)); in scheme 1 (Local without node CA), blocking a machine removes its certificate from the approved list and the agent restarts `rqlited` one node at a time. `-node-verify-client` and `-http-verify-client` on for all nodes; plus rqlite `-auth` with least-privilege users.
+   - *Test:* On every node, a connection without a client certificate, with a certificate outside the scheme's trust (approved list or CA), or with a blocked machine's certificate is refused on both the Raft and HTTP ports; a valid certificate with an rqlite user lacking the permission is refused. In scheme 1 (Local without node CA), after a block and its restart round, every node refuses the blocked machine. The agent refuses to start `rqlited` with `-node-verify-client` or `-http-verify-client` off.
 12. **Certificates have no CRL/OCSP endpoints** (so no verifier, including Windows', tries to reach them offline). Revocation is **passive**: step-ca refuses renewal. Validity exceeds the longest accepted outage with margin (e.g. 90 days for up to 30 days offline). Renewal at ~2/3 of validity (`step ca renew --daemon`, `--exec` restarts `rqlited`). Offline validation is local (chain to installed root, dates vs. local clock).
+   - *Test:* In the schemes with a CA (2 and 3): issued certificates carry no CRL distribution point or OCSP extension; with the network down, nodes (including Windows) validate each other; a revoked machine cannot renew; validity ≥ longest accepted outage + margin; renewal starts at ~2/3 of validity.
 13. **Root CA key is offline**, used only to sign intermediates, never automatically, with a multi-person procedure. Intermediate key online in step-ca with strong password, preferably in KMS/HSM. JWK provisioner private key lives in OpenBao and is read only by the Central Registry.
+   - *Test:* Config scan: no online host holds the root key, and step-ca references only the intermediate. OpenBao policy test: only the Central Registry's identity can read the JWK provisioner key; any other gets 403. Each intermediate signing has a record of the multi-person procedure.
 14. **Let's Encrypt only on public endpoints** (website, public cloud API, Keycloak) behind Caddy. **The Cloud Node is not behind Caddy**: it is exposed on its own port with rqlite mTLS, because a TLS-terminating proxy would prevent client-cert verification.
+   - *Test:* Endpoint scan: public endpoints present Let's Encrypt certificates via Caddy; the Cloud Node port presents the customer's CA certificate and refuses connections without a client certificate; no Caddy route points to a Cloud Node.
 15. **The cloud never opens connections toward a Location**; Locations open outbound connections (e.g. the authorizer-status SSE stream).
+   - *Test:* A Location behind NAT with no inbound port open works fully (CDC, membership, migrations, authorizer-status SSE). Cloud egress rules forbid connections to Location networks.
 
 ## Central Registry
 
@@ -156,7 +171,7 @@ General rules:
 - **Scope:** each country's fiscal core covers every taxation model, tax regime, document and operation type its law defines, for any kind of business. Never limit fiscal rules by Akela's initial market (e-commerce, rental). Only rules no longer in force at launch (2027) are left out.
 - Fiscal rules are separated **per country**: each defines its documents, the data each operation requires from each party, numbering and transmission. Each country implements only what its law requires (e.g. the US: sales tax per jurisdiction and exemption certificates, no e-invoicing).
 - Fiscal/financial pending items: each operation declares required data; the system shows what's missing and why. Checked at the Location, works offline.
-- Issuer configured per Location (Brazil: CNPJ + state registration). In the cloud, all of a customer's issuers are consolidated in that customer's tenant for administration.
+- Issuer configured per Location (Brazil: CNPJ + state registration, plus municipal registration for NFS-e). Two Locations never share a CNPJ. In the cloud, all of a customer's issuers are consolidated in that customer's tenant for administration.
 - Homologation is done at every authorizer where a customer issues (validations vary by UF). Each homologation case stores the sent XML and the authorizer response (status code and reason) as a reference case; on each new Technical Note (NT) or schema package, reference cases are resent and responses compared. Legal rules the authorizer doesn't check (contingency deadlines, document obligation by date/tax regime) get their own tests derived from the legal text.
 - Initially the fiscal core uses forks of compatibly-licensed third-party libraries, replaced gradually by in-house code; each replaced part goes live only after meeting the conformance criterion in homologation and production.
 
@@ -172,7 +187,7 @@ Brazil tax reform (LC 214/2025):
 
 Numbering and issuance:
 1. Numbering is per issuer (CNPJ), model and series; each series has its own sequence. Each Location has its own issuer, and only the Leader numbers, so numbers never collide, even offline. The Leader numbers in the Location's normal series.
-2. **Reserved series per machine**, assigned at enrollment, used only while that machine operates as primary after "Take over as primary"; the majority side keeps using the normal series. Must respect legal ranges per model/UF (NF-e: 1–889 normal; 890–899 and 900–999 reserved by SEFAZ). After reconciliation the cluster returns to the normal series from its last number; the reserved series continues its own sequence next time.
+2. **Reserved series per machine**, assigned at enrollment, used only while that machine operates as primary after "Take over as primary"; the majority side keeps using the normal series. Must respect legal ranges per model/UF (NF-e and NFC-e, per NT 2023.002: 0–889 for the taxpayer's own software with a CNPJ issuer; 890–919 for issuance on the tax authority's website (NFA-e); 920–969 for the taxpayer's own software with a CPF issuer; 970–999 unused). After reconciliation the cluster returns to the normal series from its last number; the reserved series continues its own sequence next time.
 3. **Offline contingency:** documents issued in contingency are queued at the Location and transmitted when the internet returns, with automatic retries. The UI warns when a document approaches the issuer state's transmission deadline.
 4. **Authorizer status signal:** the Location app keeps an outbound SSE connection (mTLS) to the cloud's authorizer-status service, which consumes monitor-sefaz's `/stream` and sends each Location only events for its UFs (last state first, then changes). It's auxiliary: before switching issuance mode, the Location confirms via the authorizer's own service-status query. Without SSE, the Location decides from the authorizer's response alone.
 5. **NFS-e:** no availability monitoring (the national standard has no status query; the cloud tracks scheduled outages from the NFS-e portal news). A failed DPS stays queued; **before each retry, query by DPS ID whether the NFS-e was already generated.** Gaps in NFS-e numbering are normal, not errors.
@@ -194,7 +209,7 @@ Typical uses, not exhaustive: every document is implemented for every operation 
 | CT-e (57) | Only when the Location provides inter-municipal/interstate transport to third parties | The transporting Location | Own SEFAZ (MG, MS, MT, PR, SP), SVSP (AP, PE, RR) or SVRS (others). Contingency: SVC-SP or SVC-RS |
 
 - Delivery with own or rented vehicle is not a transport service: no CT-e; cargo travels with NF-e and, when required, MDF-e. Hired carrier: carrier issues CT-e and MDF-e; Location issues only NF-e.
-- Events: cancellation, correction letter, number voiding (NF-e, NFC-e); cancellation and closure (MDF-e); recipient acknowledgement on purchase NF-e.
+- Events: cancellation and number voiding (NF-e, NFC-e); correction letter (NF-e only: NFC-e rejects it, rejection 784); cancellation and closure (MDF-e); recipient acknowledgement on purchase NF-e.
 - ICMS rules, part of NF-e/NFC-e validations and MDF-e obligation are per UF; Akela applies the issuer's UF rules.
 
 ## Stack
@@ -254,12 +269,13 @@ Each customer chooses how its Locations get certificates and membership. Traffic
 - The approved certificate is stored in the Location Cluster's machine registry table.
 - The Location Agent builds rqlite's trust file on each node (`-node-ca-cert` and `-http-ca-cert`) with every approved certificate.
 - Then the agent restarts `rqlited` one node at a time. The Leader goes last, after transferring leadership.
+- Only one restart round runs at a time. A change arriving during a round waits; when the round ends, if the list changed since it started, another round runs. Each node builds its trust file from the current list at the moment of its own restart.
 - Why (confirmed in rqlite source, master `4452a98`, 2026-11-19):
   - the CA file is read only at startup (`setCertPool` in `internal/rtls/config.go`);
   - there is no CRL or OCSP;
   - only the node's own certificate and key are reloaded (`internal/rtls/reloader.go`, since 8.37.0).
 - Blocking, including theft: if the machine is a voter, it stops voting first (transferring leadership if it is the Leader), and voters are re-chosen by stability, keeping the largest odd number of the most stable machines, so a less stable voter may be demoted too. Then the agent removes its certificate from the list and runs the same restart round. There is no CA change.
-- Phones are not in the list: they talk to the Location app API (Axum) on an approved machine, never to rqlite. The Location app approves and blocks phones and reloads its own client list without restart.
+- Phones are not in the list: they talk to the Location app API (Axum) on an approved machine, never to rqlite. The Location app approves and blocks phones and reloads its own client list without restart. Pairing works like WhatsApp Web: the manager, logged in on an approved machine, opens phone pairing; that machine shows a QR code and the phone scans it. Approved phones are stored in the Location Cluster.
 - A machine that was off during a change fetches the current list from another approved node before starting `rqlited`.
 - With a single voter, its restart stops writes for a few seconds. This is accepted.
 - Optional future improvement, not a dependency: propose to rqlite that it reload the CA file without restart.
@@ -269,7 +285,7 @@ Each customer chooses how its Locations get certificates and membership. Traffic
 
 ## Operations
 
-- Backups: Cloud Nodes → S3-compatible storage (covers each Location's data); Consolidated Postgres has its own backups (also rebuildable from Cloud Nodes); Central Registry DB and intermediate key (KMS). Restores tested periodically.
+- Backups: Cloud Nodes → S3-compatible storage (covers each Location's data); Consolidated Postgres has its own backups (CDC tables are also rebuildable from Cloud Nodes; the Orchestrator's tables only from backups); Central Registry DB and intermediate key (KMS). Restores tested periodically.
 - Alerts: disk, node down, leadership outside the Location (Cloud Node Leader too long), Location without majority, Location without heartbeat, CDC Receiver lagging behind Location indexes, certificates/intermediate near expiry.
 - Periodic failure drills: cut internet, power off server, power off complementary voter. rqlite upgrades without taking the Location down.
 - Intermediate rotation: automation prepares the request, a person signs with the offline root, automation installs. Root rotation: human procedure; the agent distributes a CA bundle with both roots during transition. Renewal after expiry is an optional, security-weakening provisioner setting, only for machines of long-offline Locations.
@@ -299,7 +315,7 @@ The Location is the primary focus; the cloud is its evolution.
 
 **1.1 Spec review.** Fix errors and gaps in the architecture before writing code. Feasibility tests in section 2 use a lab CA (except the rqlite capabilities test in 2.1 that checks scheme 1's approved list of self-signed certificates) and a lab manager password; local login comes in 3.1 and the trust schemes in 3.2 and 4.2.
 
-Done when every invariant is a testable criterion and every gap has a decision or an owner.
+Done when every core rule is a testable criterion and every gap has a decision or an owner.
 
 **1.2 CI machine.** A Linux host running OneDev and Podman, with Caddy and HTTPS in front of OneDev. The firewall allows only 22/80/443, and SSH is key-only. The provisioning script lives in `infra/ci/` and is provider-agnostic: host, domain and keys are parameters, so it runs on any cloud. Tests can run locally until it is ready.
 - **Podman:** OneDev officially supports only Docker, so Podman's Docker-compatible API socket is mounted where OneDev expects `/var/run/docker.sock`.
@@ -388,7 +404,7 @@ Done when installation works offline and the laptop is always demoted before it 
 **3.3 Complete fiscal core.**
 - **Documents:** NF-e, NFC-e, NFS-e, MDF-e, CT-e first; then any other document the law defines, per the fiscal-core scope.
 - **Taxes and regimes:** ICMS, ISS, IPI, CBS, IBS, IS with effective-dated rates; regular, Simples Nacional and MEI; specific and differentiated regimes.
-- **NF-e/NFC-e events:** cancellation, correction letter, number voiding.
+- **NF-e/NFC-e events:** cancellation and number voiding; correction letter for NF-e only.
 - **MDF-e events:** cancellation and closure.
 - **Purchase NF-e:** query of received documents and recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed).
 - **Numbering:** the Location's normal series plus a reserved series per machine.
