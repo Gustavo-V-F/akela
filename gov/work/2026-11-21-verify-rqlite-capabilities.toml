@@ -1,0 +1,66 @@
+#:schema ../schema/work.schema.json
+
+[govctl]
+id = "WI-2026-11-21-002"
+title = "Verify rqlite capabilities"
+status = "queue"
+created = "2026-11-21"
+refs = [
+    "RFC-0001",
+    "RFC-0001:C-DEPARTURE",
+    "RFC-0001:C-ODD-VOTERS",
+    "RFC-0001:C-MANUAL-RECOVERY",
+    "RFC-0001:C-CONDITIONAL-WRITES",
+    "RFC-0001:C-APPROVED-LIST-TRUST",
+    "ADR-0001",
+    "ADR-0002",
+    "ADR-0003",
+]
+
+[content]
+description = 'Prove with automated tests that rqlite provides every capability that [[RFC-0001]] and [[ADR-0001]], [[ADR-0002]] and [[ADR-0003]] rely on, before any product code, and record a "capability → exists / how / limits" table. A missing capability reopens the affected clauses or ADRs (roadmap 2.1 gate).'
+
+[[content.acceptance_criteria]]
+text = "A node changes between voter and non-voter at runtime."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Leadership is transferred to a chosen node."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Unreachable nodes are auto-removed, with one node (the Cloud Node) excluded."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Backup and restore work (`/db/backup`, `/boot`)."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "CDC is emitted, including with a new `service_id`."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "A follower forwards writes to the Leader."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Each read call chooses its consistency level."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Approved-list changes apply by restarting `rqlited` one node at a time, Leader last, including with a single voter and with a machine that was off."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "The capability table records exists / how / limits for every item above."
+status = "pending"
+category = "chore"

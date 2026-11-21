@@ -1,0 +1,30 @@
+#:schema ../schema/work.schema.json
+
+[govctl]
+id = "WI-2026-11-21-001"
+title = "Set up the CI test jobs"
+status = "queue"
+created = "2026-11-21"
+
+[content]
+description = "Create the CI jobs and tests on the existing OneDev server (AlmaLinux 9, `onedev.eusou.dev.br`), without creating or provisioning any machine. This covers container tests on OneDev's Docker executor over Podman, the job that mirrors the repository to GitHub as a read-only copy, and GitHub Actions runs for Windows, macOS, Android and iOS whose results are reported back in OneDev. Product tests come with later items."
+
+[[content.acceptance_criteria]]
+text = "A 3-node rqlite test (kill one node, a new Leader is elected) runs as a OneDev job on the Docker executor over Podman."
+status = "pending"
+category = "added"
+
+[[content.acceptance_criteria]]
+text = "A OneDev job pushes each updated branch and tag to the GitHub mirror, authenticated by a token stored as a job secret, without force-push."
+status = "pending"
+category = "added"
+
+[[content.acceptance_criteria]]
+text = "A hello-world build on each GitHub Actions platform (Windows, macOS, Android, iOS) runs on push to the mirror."
+status = "pending"
+category = "added"
+
+[[content.acceptance_criteria]]
+text = "A OneDev job waits for the GitHub run of the same commit and fails when that run fails, so OneDev shows every platform's result."
+status = "pending"
+category = "added"
