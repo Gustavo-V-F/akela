@@ -84,7 +84,7 @@ jobs:
       commands: |
         set -eu
         apk add -q --no-cache curl jq
-        ci/rqlite-3node.sh
+        timeout 300 ci/rqlite-3node.sh
     runAs: 0:0
     useTTY: false
     condition: SUCCESSFUL

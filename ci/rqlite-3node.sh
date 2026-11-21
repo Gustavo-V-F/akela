@@ -19,7 +19,7 @@ raft_port() { echo $((4000 + 2 * $1)); }
 
 # Leader node ID as seen by node $1 (empty if none or unreachable).
 leader_seen_by() {
-    curl -sf "http://127.0.0.1:$(http_port "$1")/status" | jq -r '.store.leader.node_id // empty' 2>/dev/null || true
+    curl -sf --max-time 10 "http://127.0.0.1:$(http_port "$1")/status" | jq -r '.store.leader.node_id // empty' 2>/dev/null || true
 }
 
 # Waits until every node in "$2" sees node ID $1 as Leader ($1 may be "*" for any agreed
@@ -62,7 +62,7 @@ start 3
 wait_leader n1 "1 2 3" >/dev/null || fail "nodes n2 and n3 did not join under Leader n1"
 echo "3-node cluster up, Leader n1"
 
-res=$(curl -sf -XPOST "http://127.0.0.1:$(http_port 1)/db/execute" -H 'Content-Type: application/json' \
+res=$(curl -sf --max-time 10 -XPOST "http://127.0.0.1:$(http_port 1)/db/execute" -H 'Content-Type: application/json' \
     -d '["CREATE TABLE t (v TEXT)", "INSERT INTO t VALUES (\"before-kill\")"]') || fail "write failed"
 echo "$res" | jq -e '[.results[] | select(.error)] | length == 0' >/dev/null || fail "write error: $res"
 
@@ -74,7 +74,7 @@ new=$(wait_leader "*" "2 3" n1) || fail "no new Leader after killing n1"
 echo "new Leader: $new"
 
 new_port=$(http_port "${new#n}")
-val=$(curl -sf -G "http://127.0.0.1:$new_port/db/query" --data-urlencode 'level=strong' \
+val=$(curl -sf --max-time 10 -G "http://127.0.0.1:$new_port/db/query" --data-urlencode 'level=strong' \
     --data-urlencode 'q=SELECT v FROM t' | jq -r '.results[0].values[0][0]') || fail "read failed on $new"
 [ "$val" = before-kill ] || fail "committed row missing on new Leader (got: $val)"
 
