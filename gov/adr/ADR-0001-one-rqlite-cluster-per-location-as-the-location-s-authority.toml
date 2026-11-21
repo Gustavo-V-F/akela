@@ -1,0 +1,81 @@
+#:schema ../schema/adr.schema.json
+
+[govctl]
+id = "ADR-0001"
+title = "One rqlite cluster per Location as the Location's authority"
+status = "proposed"
+date = "2026-11-21"
+refs = [
+    "RFC-0001",
+    "RFC-0001:C-LEADER-AUTHORITY",
+    "RFC-0001:C-OFFLINE-OPERATION",
+    "RFC-0001:C-RQLITE-HTTP-ONLY",
+    "RFC-0001:C-CONDITIONAL-WRITES",
+    "RFC-0001:C-LOCAL-LEADERSHIP",
+    "RFC-0001:C-ODD-VOTERS",
+    "RFC-0001:C-MANUAL-RECOVERY",
+]
+
+[content]
+context = """
+Each Location has its own stock and finances, and some steps (reserving an item, numbering a fiscal document) need validation by a single authority; asynchronous replication alone cannot give that. A Location must keep validating when the internet is down, must fail over without a person in the common cases, and runs on Windows, macOS and Linux workstations. The cloud needs a change feed from each Location to build the Consolidated Postgres.
+
+The rejected alternatives and their reasons are recorded as stated in the original architecture design documents."""
+decision = "Each Location gets one rqlite cluster (SQLite replicated with Raft). Its Leader is the Location's only authority; the cloud takes part only through one Cloud Node per Location that lends a vote. rqlite provides consensus, replication, leader election and CDC; Akela adds voter selection, the path to the cloud and the business rules, and talks to rqlite only through its HTTP API."
+consequences = """
+Benefits: the Location keeps validating offline. It fails over without a person while the cloud is reachable and it has two or more local voters, and also while offline if it keeps three or more primary votes. One engine covers authority, replication and the change feed on Windows, macOS and Linux.
+
+Costs: rqlite has no interactive transactions, so every business rule must fit a single conditional statement or an atomic batch. This is not yet proven: the business-rules-without-transactions gate (roadmap 2.5) checks it, and a failure there reopens this decision. When a write needs the Cloud Node's acknowledgement to reach a majority (for example while a local voter is down), it waits for a cloud round trip; the Membership Manager failure tests (roadmap 2.4) measure this latency. If the internet and a complementary voter fail at the same instant, there is no time to shrink the voter set, and the Location stops until one of them returns. A Location offline with a single primary vote stops if that voter is lost and needs the manual "Take over as primary". The Cloud Node is the disaster-recovery copy, but writes committed by local voters alone may not have reached it yet, so a Location disaster can lose the last seconds of data. Akela must run and supervise `rqlited` on every platform (Location Agent) and depends on rqlite behaviour it cannot change. The rqlite capabilities gate (roadmap 2.1) checks the capabilities this decision relies on before any product code is written."""
+
+[[content.alternatives]]
+text = "rqlite cluster per Location, Leader as authority"
+status = "accepted"
+pros = [
+    "Raft quorum gives one authority and automatic failover",
+    "Voters and non-voters can change at runtime",
+    "Built-in CDC and HTTP API; runs on Windows, macOS and Linux",
+]
+cons = [
+    "No interactive transactions",
+    "Sole-voter loss while offline needs manual action",
+]
+
+[[content.alternatives]]
+text = "SymmetricDS"
+status = "rejected"
+rejection_reason = "Asynchronous multi-master: no single authority and no failover."
+
+[[content.alternatives]]
+text = "PowerSync or ElectricSQL"
+status = "rejected"
+rejection_reason = "The cloud Postgres is the authority, so nothing at the Location can validate while offline."
+
+[[content.alternatives]]
+text = "dqlite"
+status = "rejected"
+rejection_reason = "Linux only and no CDC."
+
+[[content.alternatives]]
+text = "LiteFS"
+status = "rejected"
+rejection_reason = "Depends on FUSE, which is not native on Windows or macOS, and on Consul for leader leases, an extra service at every Location."
+
+[[content.alternatives]]
+text = "Marmot"
+status = "rejected"
+rejection_reason = "Leaderless with eventual consistency, so no single authority."
+
+[[content.alternatives]]
+text = "Fixed authority with manual failover"
+status = "rejected"
+rejection_reason = "The Location stops until someone acts."
+
+[[content.alternatives]]
+text = "Leader lottery without quorum"
+status = "rejected"
+rejection_reason = "Allows two authorities at once (split brain)."
+
+[[content.alternatives]]
+text = "Two witnesses, one on each side"
+status = "rejected"
+rejection_reason = "Even voter total, so an outage ties the vote."

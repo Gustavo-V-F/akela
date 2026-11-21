@@ -1,0 +1,54 @@
+#:schema ../schema/adr.schema.json
+
+[govctl]
+id = "ADR-0003"
+title = "Location-initiated network path for the Cloud Node"
+status = "proposed"
+date = "2026-11-21"
+refs = [
+    "RFC-0001:C-CLOUD-BOUNDARY",
+    "RFC-0001:C-LOCAL-LEADERSHIP",
+    "RFC-0001:C-ODD-VOTERS",
+    "RFC-0001:C-MTLS",
+    "RFC-0001:C-OFFLINE-OPERATION",
+]
+
+[content]
+context = """
+The Cloud Node is a member of each Location Cluster and votes when the voting rules say so. In rqlite, built on hashicorp/raft, each node opens its own outbound connections: a candidate dials the other voters to request votes, and a follower dials the Leader to forward writes. A voting Cloud Node would therefore open connections toward the Location. Local nodes also advertise addresses on the Location's network, which the cloud cannot reach. Locations usually sit behind NAT with no inbound ports, and the architecture requires that the cloud never open connections toward a Location.
+
+Sources: hashicorp/raft `net_transport.go` (`getConn` dials the target for each outbound RPC; checked on `main`, 2026-11-21) and rqlite `cluster/client.go` (`dial` connects to the node that forwards are sent to; master `4452a98`)."""
+decision = """
+The Location opens and keeps the network path to the cloud, and all Cloud Node traffic for that Location (Raft and forwarded writes) flows over it.
+
+The path must not depend on any single Location machine: losing one local machine must not also cut the Cloud Node off from the remaining voters. Through the path, the Cloud Node must be able to reach every local voter and whichever node is Leader.
+
+The path carries only Location Cluster traffic between the Cloud Node and the Location's rqlite nodes; it gives the cloud no route to any other address or port on the Location's network.
+
+The tunnel technology is left to implementation and is chosen with evidence from the rqlite capabilities tests (roadmap 2.1) and the Membership Manager failure tests with a simulated Cloud Node (roadmap 2.4). Whatever is chosen keeps rqlite's mutual TLS end to end between nodes, and losing the path counts as losing the cloud for the offline voting rules."""
+consequences = """
+Benefits: no inbound port at any Location, works behind NAT, and keeps the rule that the cloud never connects to a Location.
+
+Costs: a tunnel component runs at every Location and becomes part of the cloud path; its outages trigger the offline voter set. Each local node that can vote needs its own path to the cloud, or an equivalent that survives the loss of any one machine. The extra hop adds latency to writes that need the Cloud Node's vote, which the Membership Manager failure tests (roadmap 2.4) measure."""
+
+[[content.alternatives]]
+text = "Path opened and kept by the Location"
+status = "accepted"
+pros = [
+    "No inbound ports at the Location",
+    "Works behind NAT",
+]
+cons = [
+    "Extra component at every Location",
+    "Extra latency on writes that need the cloud vote",
+]
+
+[[content.alternatives]]
+text = "Open inbound ports at each Location for the Cloud Node"
+status = "rejected"
+pros = ["No tunnel component"]
+cons = [
+    "Needs port forwarding or a fixed address at every Location",
+    "Exposes Location nodes to the internet",
+]
+rejection_reason = "Needs port forwarding or a fixed address at every Location, which most Locations behind NAT cannot provide, and exposes Location nodes to the internet."
