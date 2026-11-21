@@ -1,0 +1,24 @@
+version: 59
+jobs:
+- name: push-to-github
+  executeInSandbox: false
+  steps:
+  - type: PushRepository
+    name: push to GitHub mirror
+    remoteUrl: https://github.com/Gustavo-V-F/akela
+    userName: Gustavo-V-F
+    passwordSecret: github-mirror-token
+    force: false
+    condition: SUCCESSFUL
+    optional: false
+  triggers:
+  - type: BranchUpdateTrigger
+    branches: main
+    userMatch: anyone
+  - type: TagCreateTrigger
+  retryCondition: never
+  maxAttempts: 3
+  retryDelay: 30
+  includeUpstreamWhenRebuild: false
+  includeDownstreamWhenRebuild: false
+  timeout: 14400
