@@ -370,7 +370,7 @@ Done when a "capability → exists / how / limits" table exists, backed by one a
 
 Done when all are authorized or registered, with an estimate of the in-house work remaining.
 
-**2.3 Domain spec.** Products, stock, rentable units, rental contracts, sales, finance and hierarchical access. Each operation gets its rules, its required data and the fiscal document it produces.
+**2.3 Domain spec.** Products, stock, rentable units, rental contracts, sales, finance and hierarchical access. Each operation gets its rules, its required data and the fiscal document it produces. Also defines the readable-code details left open by RFC-0001 (Location core architecture): the Location code, the type letters, the sequence width, what happens when a sequence overflows, and the normal generation format without a Central Registry.
 
 **2.4 ⚠ Membership Manager + failure tests.** Build a prototype in containers, with a simulated Cloud Node. Test every scenario from the failure table, plus network partitions, latency and packet loss. Done when there are never two Leaders, no committed data is lost, and both of these are measured: the demotion window, and the extra write latency caused by the cloud vote.
 
