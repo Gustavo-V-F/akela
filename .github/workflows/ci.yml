@@ -1,0 +1,36 @@
+# Runs on every push the OneDev mirror job makes; OneDev reads the result back (roadmap 1.2).
+name: CI
+
+on: push
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo run --manifest-path ci/hello/Cargo.toml
+
+  macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo run --manifest-path ci/hello/Cargo.toml
+
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup target add aarch64-linux-android
+      - run: |
+          export CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android24-clang"
+          cargo build --manifest-path ci/hello/Cargo.toml --target aarch64-linux-android
+
+  ios:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup target add aarch64-apple-ios
+      - run: cargo build --manifest-path ci/hello/Cargo.toml --target aarch64-apple-ios

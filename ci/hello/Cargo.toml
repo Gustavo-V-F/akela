@@ -1,0 +1,6 @@
+# shortcut: placeholder crate that only proves each CI platform can build Rust; replace with the real workspace when product code starts.
+[package]
+name = "akela-ci-hello"
+version = "0.0.0"
+edition = "2024"
+publish = false
