@@ -60,7 +60,7 @@ Use exactly these terms, consistently, in code and docs.
 ### Components to build
 
 - **Location Agent** (every fixed machine and laptop): install and keep `rqlited` running as a service on Windows/macOS/Linux; detect eligibility (Location network/cable, AC power, stable latency to other voters); detect imminent departure (shutdown, unplug, network change, suspend) and request demotion first; monitor disk (CDC queue grows during outages); report machine state to the Membership Manager; automatically rejoin a new-generation cluster while keeping old data aside (exception: the old Leader waits for reconciliation); obtain and renew certificates.
-- **Membership Manager** (alongside each Leader): pick voters by priority (server → stable desktops → eligible laptops); keep the voter total odd, one change at a time (`.promote` / `.demote` or the API); hysteresis (promote only after minutes of stability, don't demote for short absences); shrink to primary votes after a few seconds without cloud and restore when it returns; auto-remove unreachable nodes with conservative timeouts identical on all voters, disabled for the Cloud Node; leadership watcher.
+- **Membership Manager** (alongside each Leader): pick voters by priority (server → stable desktops → eligible laptops); keep the voter total odd, one change at a time (`.promote` / `.demote` or the API); hysteresis (promote only after minutes of stability, don't demote for short absences); shrink to primary votes after a few seconds without cloud and restore when it returns; remove unreachable nodes itself (`DELETE /remove` after a conservative timeout identical on all voters, never the Cloud Node; rqlite's own reaper stays off because it cannot exclude a node, ADR-0004 (removal by the Membership Manager)); leadership watcher.
 - **Location app** (workstations and mobile): follows the core rules below (only the Leader validates, rqlite only through its HTTP API, no interactive transactions); degraded mode (no majority → validations blocked with a clear message); mobile talks to a local node on the Location network, otherwise to the Cloud Node; "Take over as primary" button protected by manager password, showing each present laptop's applied index.
 - **Cloud services** (Rust): Central Registry, CDC Receiver, Orchestrator, migration coordinator, authorizer-status service.
 
@@ -74,7 +74,7 @@ The authority of each Location is always a machine at that Location. The cloud o
 4. **≥2 local voters:** local voters are kept at an even number and the Cloud Node votes, so surviving machines keep a majority when others die.
 5. **Leadership stays local:** if the Cloud Node becomes Leader, the watcher calls stepdown naming a local voter, verifies, and repeats.
 6. **Offline, shrink while there is a majority:** after a few seconds without the cloud, complementary votes are demoted one at a time until only primary votes remain, keeping the largest odd number of them by rank (e.g. 2 fixed → 1 voter + 1 replica; 4 → 3 + 1). A voter being demoted transfers leadership first if it is the Leader. Restored when the internet returns.
-7. **Laptop leaving:** demoted before disappearing (unplug, network change, suspend). If there's no time, timed auto-removal handles it later (requires a Leader).
+7. **Laptop leaving:** demoted before disappearing (unplug, network change, suspend). If there's no time, the Membership Manager removes it after the removal timeout (requires a Leader); when it returns it rejoins as a non-voter.
 
 | Location type | Voters normally | Voters offline |
 | --- | --- | --- |
@@ -351,7 +351,7 @@ Done when each document and the acknowledgement can send a test request and get 
 **2.1 ⚠ rqlite capabilities.** Verify in practice that rqlite can:
 - change a node between voter and non-voter at runtime;
 - transfer leadership to a chosen node;
-- auto-remove unreachable nodes, excluding one node;
+- report unreachable nodes and remove a chosen one through the API, sparing one node, and let a removed node rejoin as a non-voter;
 - back up and restore (`/db/backup`, `/boot`);
 - emit CDC, including with a new `service_id`;
 - have a follower forward writes to the Leader;
