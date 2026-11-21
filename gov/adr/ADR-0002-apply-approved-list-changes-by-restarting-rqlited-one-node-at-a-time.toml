@@ -3,7 +3,7 @@
 [govctl]
 id = "ADR-0002"
 title = "Apply approved-list changes by restarting rqlited one node at a time"
-status = "proposed"
+status = "accepted"
 date = "2026-11-21"
 refs = [
     "RFC-0001:C-APPROVED-LIST-TRUST",

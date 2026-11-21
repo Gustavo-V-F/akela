@@ -5,6 +5,7 @@ id = "C-APPROVED-LIST-PHONES"
 title = "Approved-list trust: phones"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

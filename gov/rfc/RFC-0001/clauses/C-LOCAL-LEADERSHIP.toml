@@ -5,6 +5,7 @@ id = "C-LOCAL-LEADERSHIP"
 title = "Leadership stays at the Location"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

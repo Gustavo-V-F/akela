@@ -3,7 +3,7 @@
 [govctl]
 id = "ADR-0003"
 title = "Location-initiated network path for the Cloud Node"
-status = "proposed"
+status = "accepted"
 date = "2026-11-21"
 refs = [
     "RFC-0001:C-CLOUD-BOUNDARY",

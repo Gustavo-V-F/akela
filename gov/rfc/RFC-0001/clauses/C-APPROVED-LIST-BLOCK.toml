@@ -5,6 +5,7 @@ id = "C-APPROVED-LIST-BLOCK"
 title = "Approved-list trust: blocking"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

@@ -5,6 +5,7 @@ id = "C-SCOPE"
 title = "Scope"
 kind = "informative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

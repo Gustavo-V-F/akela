@@ -5,6 +5,7 @@ id = "C-APPROVED-LIST-TRUST"
 title = "Approved-list trust"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

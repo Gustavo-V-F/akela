@@ -5,6 +5,7 @@ id = "C-LEADER-AUTHORITY"
 title = "Leader is the only authority"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

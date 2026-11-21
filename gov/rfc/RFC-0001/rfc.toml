@@ -4,10 +4,11 @@
 id = "RFC-0001"
 title = "Location core architecture"
 version = "0.1.0"
-status = "draft"
+status = "normative"
 phase = "spec"
 owners = ["@Gustavo-V-F"]
 created = "2026-11-21"
+updated = "2026-11-21"
 
 [[sections]]
 title = "Summary"

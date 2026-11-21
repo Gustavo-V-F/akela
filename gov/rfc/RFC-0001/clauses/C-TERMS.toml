@@ -5,6 +5,7 @@ id = "C-TERMS"
 title = "Terms"
 kind = "informative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

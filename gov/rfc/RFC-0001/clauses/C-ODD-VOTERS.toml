@@ -5,6 +5,7 @@ id = "C-ODD-VOTERS"
 title = "Odd voter total"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

@@ -5,6 +5,7 @@ id = "C-READABLE-CODES"
 title = "Readable codes"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """

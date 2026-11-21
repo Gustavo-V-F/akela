@@ -5,6 +5,7 @@ id = "C-LOCAL-REGISTRY"
 title = "Local registry and migrations without a Central Registry"
 kind = "normative"
 status = "active"
+since = "0.1.0"
 
 [content]
 text = """
