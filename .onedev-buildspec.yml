@@ -46,6 +46,7 @@ jobs:
     envVars:
     - name: GH_TOKEN
       value: '@secret:github-mirror-token@'
+    runAs: 0:0
     useTTY: false
     condition: SUCCESSFUL
     optional: false
