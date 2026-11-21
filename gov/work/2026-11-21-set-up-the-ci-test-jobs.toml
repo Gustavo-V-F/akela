@@ -3,9 +3,10 @@
 [govctl]
 id = "WI-2026-11-21-001"
 title = "Set up the CI test jobs"
-status = "active"
+status = "done"
 created = "2026-11-21"
 started = "2026-11-21"
+completed = "2026-11-21"
 
 [content]
 description = "Create the CI jobs and tests on the existing OneDev server (AlmaLinux 9, `onedev.eusou.dev.br`), without creating or provisioning any machine. This covers container tests on OneDev's Docker executor over Podman, the job that mirrors the repository to GitHub as a read-only copy, and GitHub Actions runs for Windows, macOS, Android and iOS whose results are reported back in OneDev. Product tests come with later items."
@@ -17,7 +18,7 @@ category = "added"
 
 [[content.acceptance_criteria]]
 text = "A OneDev job pushes each updated branch and tag to the GitHub mirror, authenticated by a token stored as a job secret, without force-push."
-status = "pending"
+status = "done"
 category = "added"
 
 [[content.acceptance_criteria]]
