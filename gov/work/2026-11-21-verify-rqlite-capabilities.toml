@@ -3,8 +3,9 @@
 [govctl]
 id = "WI-2026-11-21-002"
 title = "Verify rqlite capabilities"
-status = "queue"
+status = "active"
 created = "2026-11-21"
+started = "2026-11-21"
 refs = [
     "RFC-0001",
     "RFC-0001:C-DEPARTURE",

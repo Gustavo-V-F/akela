@@ -12,7 +12,7 @@ description = "Create the CI jobs and tests on the existing OneDev server (AlmaL
 
 [[content.acceptance_criteria]]
 text = "A 3-node rqlite test (kill one node, a new Leader is elected) runs as a OneDev job on the Docker executor over Podman."
-status = "pending"
+status = "done"
 category = "added"
 
 [[content.acceptance_criteria]]
