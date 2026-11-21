@@ -1,0 +1,17 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-APPROVED-LIST-BLOCK"
+title = "Approved-list trust: blocking"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+When a voter is blocked, the Location Cluster MUST demote it before its certificate leaves the approved list, transferring leadership first if it is Leader. If it is unreachable, it MUST be removed from membership instead.
+
+The resulting voter set MUST satisfy [[RFC-0001:C-OFFLINE-OPERATION]]; a less stable voter MAY be demoted to reach it.
+
+If the blocked machine was the sole voter, the block MUST wait for "Take over as primary".
+
+Blocking MUST NOT change any other machine's certificate."""

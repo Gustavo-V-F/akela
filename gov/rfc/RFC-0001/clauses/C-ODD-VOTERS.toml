@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-ODD-VOTERS"
+title = "Odd voter total"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+The number of voters (local voters, plus the Cloud Node when it votes) MUST be odd whenever no membership change is in progress.
+
+Voter membership MUST change one machine at a time.
+
+When the Location has a Cloud Node and the cloud is reachable: with one local voter, the Cloud Node MUST be a replica; with two or more local voters, the number of local voters MUST be even and the Cloud Node MUST vote. Otherwise [[RFC-0001:C-OFFLINE-OPERATION]] applies."""

@@ -1,0 +1,19 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-LOCAL-CA-TRUST"
+title = "Local CA trust"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Under local CA trust, certificates MUST be issued by a step-ca on a fixed machine of the Location, only after manager approval, with the private key generated on the machine that uses it.
+
+Certificates MUST NOT contain CRL distribution point or OCSP extensions.
+
+Certificate validity MUST exceed the longest accepted outage plus a margin, and renewal MUST start at about two thirds of validity.
+
+A blocked machine MUST be refused renewal and MUST be removed from the Location Cluster's membership, demoted first if it is a voter.
+
+Once a block has been applied, every node MUST refuse the blocked machine's connections, even while its certificate is still valid."""

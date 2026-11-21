@@ -1,0 +1,19 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-READABLE-CODES"
+title = "Readable codes"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+The Leader MUST assign each readable code the next number in the sequence of its (Location, generation, type). Different types and different generations have independent sequences.
+
+A readable code MUST have the format `<Location>-<generation>-<type><seq>` (e.g. order `L03-G1-P000123`, Buyer `L03-G1-C000045`).
+
+No two records MAY be assigned the same (Location, generation, type, sequence).
+
+A readable code MUST NOT be a key or be used in relations.
+
+A generation created by "Take over as primary" MUST be the previous generation followed by the taking machine's code (e.g. `G1M07`)."""

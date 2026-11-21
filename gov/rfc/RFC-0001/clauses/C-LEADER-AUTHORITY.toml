@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-LEADER-AUTHORITY"
+title = "Leader is the only authority"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+The Leader of a Location Cluster MUST be the only component that accepts or rejects writes to that Location Cluster's data.
+
+A write submitted while the Location Cluster has no majority MUST be rejected with an error and MUST NOT take effect later, whichever node, Cloud Node or cloud service submits it.
+
+The Consolidated Postgres and the website MUST NOT accept or reject such writes. The Cloud Node MUST NOT accept or reject them except while it is Leader during the periods allowed by [[RFC-0001:C-LOCAL-LEADERSHIP]]."""

@@ -1,0 +1,21 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-DEPARTURE"
+title = "Demotion before departure"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+When the imminent departure of a laptop that is a voter is detected (unplug, network change, suspend, shutdown), the laptop MUST stop being a voter before it becomes unreachable, whenever the departure gives notice.
+
+A voter that is Leader MUST transfer leadership before it is demoted.
+
+A machine MUST NOT be promoted to voter until it has been eligible continuously for the configured promotion delay.
+
+An absence shorter than the configured removal timeout MUST NOT cause demotion or removal.
+
+A node unreachable for longer than the removal timeout MUST be removed. The timeout MUST be identical on all voters. This removal MUST NOT apply to the Cloud Node.
+
+A node removed for unreachability MUST be able to rejoin the same generation as a non-voter."""

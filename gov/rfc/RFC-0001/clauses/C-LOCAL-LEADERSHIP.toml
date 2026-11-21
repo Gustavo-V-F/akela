@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-LOCAL-LEADERSHIP"
+title = "Leadership stays at the Location"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+While at least one local voter is reachable, the Leader MUST be a local voter.
+
+If the Cloud Node becomes Leader, leadership MUST be transferred to a local voter without operator action, and the transfer MUST be retried until a local voter holds leadership.
+
+After a Location disaster ([[RFC-0001:C-MANUAL-RECOVERY]]), the Leader MAY be a cloud node until machines at the Location join the recovered cluster."""

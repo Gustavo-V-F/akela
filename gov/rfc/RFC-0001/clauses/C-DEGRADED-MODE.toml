@@ -1,0 +1,13 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-DEGRADED-MODE"
+title = "No majority"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+When the Location Cluster has no majority, the Location app MUST refuse every operation that writes Location data, MUST state that the Location has no majority as the reason, and MUST NOT apply the refused operation later.
+
+When the Location Cluster has no majority, the Location app MAY serve reads from the local copy and MUST mark them as possibly out of date."""

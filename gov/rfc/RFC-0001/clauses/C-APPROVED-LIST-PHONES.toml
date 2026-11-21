@@ -1,0 +1,19 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-APPROVED-LIST-PHONES"
+title = "Approved-list trust: phones"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Under approved-list trust, phones MUST NOT be in the approved list and MUST NOT connect to rqlite. They MUST use the Location app API on an approved machine.
+
+A phone MUST be paired by scanning a QR code shown by an approved machine where a manager is logged in.
+
+Approved phones MUST be stored in the Location Cluster.
+
+Approving or blocking a phone MUST take effect without restarting any service.
+
+Pairing MUST give the phone its own key pair. The Location app API MUST verify the phone's certificate on every call and MUST refuse phones that are not approved."""

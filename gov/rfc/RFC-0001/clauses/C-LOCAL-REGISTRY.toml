@@ -1,0 +1,17 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-LOCAL-REGISTRY"
+title = "Local registry and migrations without a Central Registry"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Under approved-list trust and local CA trust, membership, generation, the approved list, machine codes, reserved series and schema version MUST live in the Location Cluster's registry tables.
+
+Under approved-list trust and local CA trust, the Location app MUST apply schema migrations through the rqlite API when it is upgraded.
+
+Each migration MUST be applied exactly once per Location Cluster, even when several machines upgrade at the same time.
+
+A Location app older than the Location Cluster's schema version MUST refuse to write."""

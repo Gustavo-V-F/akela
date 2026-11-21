@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-CLOUD-BOUNDARY"
+title = "Connections with the cloud"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+A Location MUST operate fully with no inbound port reachable from outside its network.
+
+Every network path between a Location and the cloud, including the Cloud Node's Raft traffic and its forwarded writes, MUST be established from the Location.
+
+Writes received by the Cloud Node MUST be forwarded to the Location's Leader."""

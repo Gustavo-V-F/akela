@@ -1,0 +1,13 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-RQLITE-HTTP-ONLY"
+title = "rqlite only through its HTTP API"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Akela components MUST access Location data only through the rqlite HTTP API.
+
+Akela components MUST NOT open the SQLite files of a Location Cluster."""

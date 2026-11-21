@@ -1,0 +1,39 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-TERMS"
+title = "Terms"
+kind = "informative"
+status = "active"
+
+[content]
+text = """
+- **Location:** a business unit (e.g. a store or rental shop) with its own stock and finances.
+- **Location Cluster:** the rqlite cluster holding one Location's data.
+- **Location app:** the Akela application used at the Location (desktop, web and mobile).
+- **Manager:** a Location user with the permission to approve machines and phones and to run manual procedures.
+- **Fixed machine:** a wired desktop or server at the Location.
+- **Eligible laptop:** a laptop on the Location's network and plugged in, continuously so for at least the configured eligibility delay.
+- **Mobile device:** a phone, or a laptop not meeting the eligibility conditions.
+- **Voter:** a node that votes in elections and can become Leader.
+- **Replica:** a non-voting node with a full copy of the data.
+- **Leader:** the voter that validates the Location Cluster's writes.
+- **Majority:** more than half of the current voters, reachable from each other.
+- **Stability rank:** the order in which machines are chosen as voters: servers, then fixed desktops, then eligible laptops; within each group, by recorded stability.
+- **Primary vote:** a fixed machine in stability-rank order; in a Location without fixed machines, the most stable eligible laptop.
+- **Complementary vote:** the Cloud Node and eligible laptops that only complete the majority.
+- **Cloud Node:** one rqlite node in the cloud per Location, member of that Location Cluster.
+- **Generation:** a value that changes every time a Location Cluster is recreated.
+- **Machine code:** a code assigned to each machine when it is approved, unique within the Location.
+- **Applied index:** the last Raft log index a node has applied.
+- **Technical key:** the per-row identifier used for relations between tables.
+- **Readable code:** an identifier humans read on screens, contracts and receipts.
+- **Reserved series:** a fiscal numbering series reserved for one machine, used only after "Take over as primary" (specified with the fiscal core).
+- **Location Agent:** the daemon on each fixed machine and laptop that manages `rqlited`, eligibility and certificates.
+- **Membership Manager:** the component running alongside the Leader that decides who votes.
+- **Take over as primary:** the manual procedure that makes one laptop the sole voter of a new cluster when the sole voter is gone and the Location is offline.
+- **Location disaster:** the manual procedure used when a Location's machines are destroyed, stolen or lost.
+- **Trust schemes**, each named by what it uses:
+  - **approved-list trust:** each machine's own self-signed certificate, trusted because a manager put it on the Location's **approved list** (no CA);
+  - **local CA trust:** certificates issued by a step-ca running on a fixed machine of the Location;
+  - **cloud CA trust:** certificates issued by the customer's step-ca in the cloud."""

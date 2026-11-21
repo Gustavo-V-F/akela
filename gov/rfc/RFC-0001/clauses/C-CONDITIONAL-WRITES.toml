@@ -1,0 +1,13 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-CONDITIONAL-WRITES"
+title = "Business rules without interactive transactions"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Concurrent writes submitted through any nodes MUST NOT violate any uniqueness or availability rule, including: no double reservation, no duplicate readable code, no duplicate fiscal number, and no duplicate CPF/CNPJ within a Location.
+
+Every read request an Akela component sends to rqlite MUST state its consistency level explicitly."""

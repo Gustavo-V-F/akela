@@ -1,0 +1,19 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-VOTER-SELECTION"
+title = "Who votes"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+A laptop MUST NOT be a voter while a fixed machine that is not a voter could take its place.
+
+An eligible laptop MUST NOT vote unless there would otherwise be fewer than two local voters.
+
+A mobile device MUST NOT vote.
+
+Every Location Cluster node that does not vote MUST be a replica with a full copy of the data.
+
+Phones MUST NOT be Location Cluster nodes under any trust scheme."""

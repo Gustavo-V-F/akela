@@ -1,0 +1,17 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-TECHNICAL-KEYS"
+title = "Technical keys"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Every row's technical key MUST be a UUIDv7 (RFC 9562) assigned by the Akela component that creates the row, before the write reaches the Leader.
+
+Relations MUST use only technical keys.
+
+Keys MUST NOT come from local sequences or auto-increment.
+
+Every table MUST have a column recording the machine that created each row, and keys MUST NOT encode it."""

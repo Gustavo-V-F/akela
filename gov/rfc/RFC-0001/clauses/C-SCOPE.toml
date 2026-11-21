@@ -1,0 +1,20 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-SCOPE"
+title = "Scope"
+kind = "informative"
+status = "active"
+
+[content]
+text = """
+This RFC specifies what every Location that has a Location Cluster must satisfy:
+
+- authority over the Location's data;
+- voting and leadership, including the Cloud Node's role inside the Location Cluster;
+- technical keys and readable codes;
+- offline operation;
+- manual recovery at the Location;
+- approved-list trust and local CA trust.
+
+Out of scope, specified in later RFCs: cloud-only Locations; cloud services (CDC Receiver, Consolidated Postgres, Central Registry, Orchestrator); cloud CA trust and the cloud steps of Location disaster; moving a Location from one trust scheme to another; the website order saga; the fiscal core; user login and permissions. Terms are defined in [[RFC-0001:C-TERMS]]."""

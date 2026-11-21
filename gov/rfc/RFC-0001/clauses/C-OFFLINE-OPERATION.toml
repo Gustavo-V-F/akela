@@ -1,0 +1,19 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-OFFLINE-OPERATION"
+title = "Offline operation"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+When the Cloud Node has been unreachable from the Leader for longer than the configured cloud-loss timeout (identical on all voters), voters MUST be demoted one at a time until only primary votes remain, keeping the largest odd number of them in stability-rank order.
+
+A majority of reachable voters MUST exist after every demotion step.
+
+Validation MUST continue while the reachable local voters form a majority of the current voter set.
+
+When the Cloud Node is reachable again, the voter set of [[RFC-0001:C-ODD-VOTERS]] MUST be restored.
+
+A Location without a Cloud Node (approved-list trust or local CA trust) MUST always use the offline voter set."""

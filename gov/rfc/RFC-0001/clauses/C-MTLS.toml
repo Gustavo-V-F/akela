@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-MTLS"
+title = "Mutual TLS and least privilege"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Every rqlite connection, node-to-node and client-to-node, MUST use TLS with client certificate verification.
+
+A connection without a certificate trusted by the Location's trust scheme, or with a blocked machine's certificate, MUST be refused.
+
+Each Akela component MUST use its own rqlite user, and that user MUST be refused every rqlite permission the component does not use."""

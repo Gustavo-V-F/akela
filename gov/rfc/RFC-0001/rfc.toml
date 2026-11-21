@@ -1,0 +1,46 @@
+#:schema ../../schema/rfc.schema.json
+
+[govctl]
+id = "RFC-0001"
+title = "Location core architecture"
+version = "0.1.0"
+status = "draft"
+phase = "spec"
+owners = ["@Gustavo-V-F"]
+created = "2026-11-21"
+
+[[sections]]
+title = "Summary"
+clauses = [
+    "clauses/C-SCOPE.toml",
+    "clauses/C-TERMS.toml",
+]
+
+[[sections]]
+title = "Specification"
+clauses = [
+    "clauses/C-LEADER-AUTHORITY.toml",
+    "clauses/C-LOCAL-LEADERSHIP.toml",
+    "clauses/C-VOTER-SELECTION.toml",
+    "clauses/C-ODD-VOTERS.toml",
+    "clauses/C-OFFLINE-OPERATION.toml",
+    "clauses/C-DEPARTURE.toml",
+    "clauses/C-DEGRADED-MODE.toml",
+    "clauses/C-RQLITE-HTTP-ONLY.toml",
+    "clauses/C-CONDITIONAL-WRITES.toml",
+    "clauses/C-TECHNICAL-KEYS.toml",
+    "clauses/C-READABLE-CODES.toml",
+    "clauses/C-MANUAL-RECOVERY.toml",
+    "clauses/C-MTLS.toml",
+    "clauses/C-APPROVED-LIST-TRUST.toml",
+    "clauses/C-APPROVED-LIST-BLOCK.toml",
+    "clauses/C-APPROVED-LIST-PHONES.toml",
+    "clauses/C-LOCAL-REGISTRY.toml",
+    "clauses/C-CLOUD-BOUNDARY.toml",
+    "clauses/C-LOCAL-CA-TRUST.toml",
+]
+
+[[changelog]]
+version = "0.1.0"
+date = "2026-11-21"
+notes = "Initial draft"

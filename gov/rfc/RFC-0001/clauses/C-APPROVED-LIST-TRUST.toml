@@ -1,0 +1,25 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-APPROVED-LIST-TRUST"
+title = "Approved-list trust"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Under approved-list trust, each machine MUST use its own self-signed certificate, with no renewal. Replacing a machine's certificate MUST require a new approval.
+
+A machine MUST be approved by a manager, logged in on an already-approved machine, who confirms a code shown on the new machine.
+
+The first machine of a Location MUST be approved when the manager login is created during its installation.
+
+The approved list MUST be stored in the Location Cluster.
+
+Once an approval or block has been applied, every running node MUST accept exactly the certificates in the approved list.
+
+A change made while another is being applied MUST NOT be lost; it MUST take effect after the current one.
+
+A node that was off during a change MUST NOT accept a blocked machine at any time after it starts.
+
+Applying a change MUST NOT make a Location with more than one voter lose its majority. With a single voter, writes MAY pause for a few seconds while a change is applied."""

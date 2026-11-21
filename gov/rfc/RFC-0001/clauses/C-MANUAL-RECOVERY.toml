@@ -1,0 +1,19 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-MANUAL-RECOVERY"
+title = "Takeover and disaster"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+"Take over as primary" MUST require a manager's credentials, MUST be available only when the Location Cluster has no majority, and MUST show the applied index of each reachable laptop before confirmation.
+
+"Take over as primary" and Location disaster MUST create a new cluster from a copy, with a new generation. Membership MUST NOT be rewritten in place.
+
+The previous data of the machine that takes over MUST be moved aside, not deleted.
+
+A node still holding Raft state of the old cluster MUST be refused by the new cluster. It MAY join only after that state is reset.
+
+Before the old primary rejoins, every record created or changed on it after the copy was taken MUST be reconciled into the new cluster. A record whose insertion or update would violate a business rule MUST NOT be applied automatically; it MUST be shown to a manager for resolution. No reconciled record MAY be lost."""
