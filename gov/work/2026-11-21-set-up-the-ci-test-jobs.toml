@@ -22,7 +22,7 @@ category = "added"
 
 [[content.acceptance_criteria]]
 text = "A hello-world build on each GitHub Actions platform (Windows, macOS, Android, iOS) runs on push to the mirror."
-status = "pending"
+status = "done"
 category = "added"
 
 [[content.acceptance_criteria]]
@@ -32,5 +32,5 @@ category = "added"
 
 [[content.acceptance_criteria]]
 text = "The repository README states that GitHub is a read-only mirror and that pull requests and issues go to OneDev."
-status = "pending"
+status = "done"
 category = "added"
