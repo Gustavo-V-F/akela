@@ -171,7 +171,7 @@ General rules:
 - **Scope:** each country's fiscal core covers every taxation model, tax regime, document and operation type its law defines, for any kind of business. Never limit fiscal rules by Akela's initial market (e-commerce, rental). Only rules no longer in force at launch (2027) are left out.
 - Fiscal rules are separated **per country**: each defines its documents, the data each operation requires from each party, numbering and transmission. Each country implements only what its law requires (e.g. the US: sales tax per jurisdiction and exemption certificates, no e-invoicing).
 - Fiscal/financial pending items: each operation declares required data; the system shows what's missing and why. Checked at the Location, works offline.
-- Issuer configured per Location (Brazil: CNPJ + state registration, plus municipal registration for NFS-e). Two Locations never share a CNPJ. In the cloud, all of a customer's issuers are consolidated in that customer's tenant for administration.
+- Issuer configured per Location (Brazil: CNPJ; state registration when the Location is an ICMS taxpayer; municipal registration for NFS-e). Two Locations never share a CNPJ. In the cloud, all of a customer's issuers are consolidated in that customer's tenant for administration.
 - Homologation is done at every authorizer where a customer issues (validations vary by UF). Each homologation case stores the sent XML and the authorizer response (status code and reason) as a reference case; on each new Technical Note (NT) or schema package, reference cases are resent and responses compared. Legal rules the authorizer doesn't check (contingency deadlines, document obligation by date/tax regime) get their own tests derived from the legal text.
 - Initially the fiscal core uses forks of compatibly-licensed third-party libraries, replaced gradually by in-house code; each replaced part goes live only after meeting the conformance criterion in homologation and production.
 
@@ -194,22 +194,23 @@ Numbering and issuance:
 
 Issuance requirements for Buyers:
 - Remote sale with NF-e: recipient name + CPF/CNPJ.
-- NFC-e with home delivery: full recipient address (since 2026-08-03, Ajuste SINIEF 9/2026).
+- NFC-e in any non-presential sale (including home delivery): recipient address (since 2026-08-03, Ajuste SINIEF 9/2026).
 - NFC-e above the state's identification threshold: Buyer identification. Below it, in-person sale: identification optional, invoice still mandatory.
-- Rental of movable goods: NFS-e mandatory on every charge from 2026-12-01 (Simples Nacional: 2027-01-01), per Ato Conjunto RFB/CGIBS 4/2026.
+- Rental of movable goods: NFS-e mandatory on every charge from 2027-01-01, including Simples Nacional, per Ato Conjunto RFB/CGIBS 4/2026 as amended by Ato Conjunto RFB/CGIBS 7/2026.
 
 Typical uses, not exhaustive: every document is implemented for every operation type the law allows.
 
 | Document | Typical use | Issuer | Authorizer |
 | --- | --- | --- | --- |
 | NF-e (55) | B2B and interstate sales, returns, inbound; shipment of goods for rental without ICMS (SP: CFOP 5.908/6.908) and return of rented goods | The Location. Return in SP: ICMS-taxpayer lessee issues outbound NF-e (CFOP 5.909/6.909); non-taxpayer → Location issues inbound NF-e (CFOP 1.909/2.909) referencing the shipment NF-e. Other UFs: per their RICMS | Own SEFAZ (AM, BA, GO, MG, MS, MT, PE, PR, RS, SP), SVRS (other UFs except MA), SVAN (MA). Contingency: SVC-AN or SVC-RS per UF |
-| NFC-e (65) | In-person sale to end consumer | The Location | Own SEFAZ (AM, GO, MG, MS, MT, PR, SP) or SVRS. Offline contingency on the machine |
+| NFC-e (65) | In-person sale to end consumer | The Location | Own SEFAZ (AM, GO, MG, MS, MT, PR, RS, SP) or SVRS. Offline contingency on the machine |
 | NFS-e (national) | Rental of movable goods; services (assembly, installation); intra-municipal freight for third parties | The Location | Sefin Nacional (national issuer, registered in ADN) or the municipality's own issuer (shares with ADN) |
 | MDF-e (58) | Goods transport in own/leased vehicle or with independent carrier, when the UF requires | Whoever transports (the Location for own delivery) | SVRS for all UFs |
-| CT-e (57) | Only when the Location provides inter-municipal/interstate transport to third parties | The transporting Location | Own SEFAZ (MG, MS, MT, PR, SP), SVSP (AP, PE, RR) or SVRS (others). Contingency: SVC-SP or SVC-RS |
+| CT-e (57) | Only when the Location provides inter-municipal/interstate transport to third parties | The transporting Location | Own SEFAZ (MG, MS, MT, PR, RS, SP), SVSP (AP, PE, RR) or SVRS (others). Contingency: SVC-SP or SVC-RS |
 
 - Delivery with own or rented vehicle is not a transport service: no CT-e; cargo travels with NF-e and, when required, MDF-e. Hired carrier: carrier issues CT-e and MDF-e; Location issues only NF-e.
 - Events: cancellation and number voiding (NF-e, NFC-e); correction letter (NF-e only: NFC-e rejects it, rejection 784); cancellation and closure (MDF-e); recipient acknowledgement on purchase NF-e.
+- IBS/CBS-only taxpayers (no state registration, not ICMS taxpayers; NT 2026.007, in production since 2026-11-16): NF-e is issued without state registration and authorized only by SVRS, including the issuer's own events, whatever the UF; NFC-e is not allowed for them until 2033.
 - ICMS rules, part of NF-e/NFC-e validations and MDF-e obligation are per UF; Akela applies the issuer's UF rules.
 
 ## Stack
@@ -281,6 +282,7 @@ Each customer chooses how its Locations get certificates and membership. Traffic
 - Optional future improvement, not a dependency: propose to rqlite that it reload the CA file without restart.
 
 - Without a Cloud Node (schemes 1 and 2, whose trust is entirely at the Location) the Location always uses the offline voting rules: the largest odd number of primary votes.
+- Schema migrations in schemes 1 and 2 (no Central Registry): the Location app applies them through the rqlite API when it is upgraded, and the schema version is kept in the Location Cluster's registry tables.
 - Moving from scheme 1 (no CA) to 2 (step-ca on a Location machine), or from 2 to 3 (step-ca in the cloud), re-enrolls machines one at a time under the new anchor; nodes trust both anchors during the transition, as in a root rollover. In the move to the cloud (2 → 3) the local registry tables are copied into the Central Registry, which becomes the source.
 
 ## Operations
