@@ -319,7 +319,7 @@ The Location is the primary focus; the cloud is its evolution.
 
 Done when every core rule is a testable criterion and every gap has a decision or an owner.
 
-**1.2 CI machine.** A Linux host running OneDev and Podman, with Caddy and HTTPS in front of OneDev. The firewall allows only 22/80/443, and SSH is key-only. The provisioning script lives in `infra/ci/` and is provider-agnostic: host, domain and keys are parameters, so it runs on any cloud. Tests can run locally until it is ready.
+**1.2 CI tests.** The CI server already exists: an AlmaLinux 9 host running OneDev (`onedev.eusou.dev.br`) with Podman, and Caddy with HTTPS in front of OneDev. Its network and access details are secrets and stay out of the repository. This step creates no machine; it only creates the CI jobs and tests. Tests can run locally until they are in place.
 - **Podman:** OneDev officially supports only Docker, so Podman's Docker-compatible API socket is mounted where OneDev expects `/var/run/docker.sock`.
 - **OneDev is the primary repository** and the single place where tests are planned and their results are seen. GitHub is a read-only public mirror: never push to it directly. Pull requests and issues happen on OneDev; the mirror's README points contributors there.
 - **Mirror:** a OneDev job with the "Push to Remote" step pushes each updated branch and tag to GitHub, authenticated by a GitHub token stored as a OneDev job secret, without force-push.
@@ -333,7 +333,7 @@ Done when every core rule is a testable criterion and every gap has a decision o
 - **Results back in OneDev:** the GitHub workflows trigger on push to the mirror. After the push, a OneDev job waits for the GitHub run of the same commit (`gh run list --commit <sha>`, then `gh run watch <run-id> --exit-status`) and fails if that run fails, so OneDev shows every platform's result.
 - **GitHub Actions details:** Apple signing and notarization secrets live in GitHub Secrets. Android emulator tests run on `ubuntu-latest` with KVM hardware acceleration, enabled by a udev-rule step before the emulator starts. iOS simulator tests run on macOS runners (simulator runtimes per image are listed in `actions/runner-images`).
 
-Done when the script builds the machine from scratch, a 3-node rqlite test (kill one node, a new Leader is elected) runs on OneDev, a push to OneDev is mirrored to GitHub, and a hello-world build on each GitHub Actions platform reports its result back in OneDev.
+Done when a 3-node rqlite test (kill one node, a new Leader is elected) runs on OneDev, a push to OneDev is mirrored to GitHub, and a hello-world build on each GitHub Actions platform reports its result back in OneDev.
 
 **1.3 Fiscal paperwork.**
 - Get the test issuer's digital certificate.
