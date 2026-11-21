@@ -3,8 +3,9 @@
 [govctl]
 id = "WI-2026-11-21-001"
 title = "Set up the CI test jobs"
-status = "queue"
+status = "active"
 created = "2026-11-21"
+started = "2026-11-21"
 
 [content]
 description = "Create the CI jobs and tests on the existing OneDev server (AlmaLinux 9, `onedev.eusou.dev.br`), without creating or provisioning any machine. This covers container tests on OneDev's Docker executor over Podman, the job that mirrors the repository to GitHub as a read-only copy, and GitHub Actions runs for Windows, macOS, Android and iOS whose results are reported back in OneDev. Product tests come with later items."
@@ -26,5 +27,10 @@ category = "added"
 
 [[content.acceptance_criteria]]
 text = "A OneDev job waits for the GitHub run of the same commit and fails when that run fails, so OneDev shows every platform's result."
+status = "pending"
+category = "added"
+
+[[content.acceptance_criteria]]
+text = "The repository README states that GitHub is a read-only mirror and that pull requests and issues go to OneDev."
 status = "pending"
 category = "added"
