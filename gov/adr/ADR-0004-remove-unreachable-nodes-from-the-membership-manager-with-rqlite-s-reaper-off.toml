@@ -3,7 +3,7 @@
 [govctl]
 id = "ADR-0004"
 title = "Remove unreachable nodes from the Membership Manager, with rqlite's reaper off"
-status = "proposed"
+status = "accepted"
 date = "2026-11-21"
 refs = [
     "RFC-0001:C-DEPARTURE",

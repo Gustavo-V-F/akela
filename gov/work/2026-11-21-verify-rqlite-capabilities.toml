@@ -3,9 +3,10 @@
 [govctl]
 id = "WI-2026-11-21-002"
 title = "Verify rqlite capabilities"
-status = "active"
+status = "done"
 created = "2026-11-21"
 started = "2026-11-21"
+completed = "2026-11-21"
 refs = [
     "RFC-0001",
     "RFC-0001:C-DEPARTURE",
@@ -34,7 +35,7 @@ category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Unreachable nodes are reported and removed through the rqlite API with the Cloud Node kept, rqlite's own reaper cannot exclude a node, and a removed node rejoins as a non-voter."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
