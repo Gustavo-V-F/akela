@@ -21,7 +21,7 @@ refs = [
 ]
 
 [content]
-description = 'Prove with automated tests that rqlite provides every capability that [[RFC-0001]] and [[ADR-0001]], [[ADR-0002]] and [[ADR-0003]] rely on, before any product code, and record a "capability → exists / how / limits" table. A missing capability reopens the affected clauses or ADRs (roadmap 2.1 gate).'
+description = 'Prove with automated tests that rqlite provides every capability that [[RFC-0001]] and [[ADR-0001]], [[ADR-0002]] and [[ADR-0003]] rely on, before any product code, and record a "capability → exists / how / limits" table. A missing capability reopens the affected clauses or ADRs.'
 
 [[content.acceptance_criteria]]
 text = "A node changes between voter and non-voter at runtime."

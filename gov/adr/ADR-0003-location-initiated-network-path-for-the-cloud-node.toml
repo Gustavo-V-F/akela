@@ -25,11 +25,11 @@ The path must not depend on any single Location machine: losing one local machin
 
 The path carries only Location Cluster traffic between the Cloud Node and the Location's rqlite nodes; it gives the cloud no route to any other address or port on the Location's network.
 
-The tunnel technology is left to implementation and is chosen with evidence from the rqlite capabilities tests (roadmap 2.1) and the Membership Manager failure tests with a simulated Cloud Node (roadmap 2.4). Whatever is chosen keeps rqlite's mutual TLS end to end between nodes, and losing the path counts as losing the cloud for the offline voting rules."""
+The tunnel technology is left to implementation and is chosen with evidence from the rqlite capabilities tests and the Membership Manager failure tests with a simulated Cloud Node. Whatever is chosen keeps rqlite's mutual TLS end to end between nodes, and losing the path counts as losing the cloud for the offline voting rules."""
 consequences = """
 Benefits: no inbound port at any Location, works behind NAT, and keeps the rule that the cloud never connects to a Location.
 
-Costs: a tunnel component runs at every Location and becomes part of the cloud path; its outages trigger the offline voter set. Each local node that can vote needs its own path to the cloud, or an equivalent that survives the loss of any one machine. The extra hop adds latency to writes that need the Cloud Node's vote, which the Membership Manager failure tests (roadmap 2.4) measure."""
+Costs: a tunnel component runs at every Location and becomes part of the cloud path; its outages trigger the offline voter set. Each local node that can vote needs its own path to the cloud, or an equivalent that survives the loss of any one machine. The extra hop adds latency to writes that need the Cloud Node's vote, which the Membership Manager failure tests measure."""
 
 [[content.alternatives]]
 text = "Path opened and kept by the Location"
