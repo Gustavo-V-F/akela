@@ -55,10 +55,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: "8"
+      # The runner image ships Java 8; using it avoids a JDK download on every run.
+      - run: |
+          test -n "${JAVA_HOME_8_X64:-}" || { echo "::error::runner image has no Java 8 (JAVA_HOME_8_X64)"; exit 1; }
+          echo "JAVA_HOME=$JAVA_HOME_8_X64" >> "$GITHUB_ENV"
+          echo "$JAVA_HOME_8_X64/bin" >> "$GITHUB_PATH"
       - run: command -v ant || sudo apt-get install -y -qq ant
       - run: ci/cert-custody/build-piv-applet.sh "$RUNNER_TEMP/piv"
       - uses: actions/upload-artifact@v7
@@ -71,10 +72,12 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: "8"
+      # The runner image ships Java 8; using it avoids a JDK download on every run.
+      - shell: pwsh
+        run: |
+          if (-not $env:JAVA_HOME_8_X64) { Write-Host "::error::runner image has no Java 8 (JAVA_HOME_8_X64)"; exit 1 }
+          "JAVA_HOME=$env:JAVA_HOME_8_X64" >> $env:GITHUB_ENV
+          "$env:JAVA_HOME_8_X64\bin" >> $env:GITHUB_PATH
       - uses: actions/download-artifact@v8
         with:
           name: piv-applet
