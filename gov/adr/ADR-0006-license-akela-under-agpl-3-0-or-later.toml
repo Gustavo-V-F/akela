@@ -1,0 +1,60 @@
+#:schema ../schema/adr.schema.json
+
+[govctl]
+id = "ADR-0006"
+title = "License Akela under AGPL-3.0-or-later"
+status = "accepted"
+date = "2026-11-22"
+
+[content]
+context = """
+Akela is open source and its repository is public, but it had no license, so nobody had permission to use, change or redistribute the code. The product itself is offered free of charge; revenue comes from services around it: managing customers' instances, technical support, custom extensions and plugins, and training.
+
+Under a permissive license or the GPL, a third party can run a modified Akela as a network service and sell its management without publishing the changes, because the GPL's obligations apply only when the program is distributed, not when users interact with it over a network. That would let others compete with Akela's own services using improvements Akela never sees."""
+decision = """
+All in-house Akela code is licensed under the GNU Affero General Public License, version 3 or (at the licensee's option) any later version (SPDX `AGPL-3.0-or-later`). The repository carries the license text, and every in-house package declares this SPDX identifier.
+
+Contributions are accepted under the same license."""
+consequences = """
+Benefits: anyone who offers a modified Akela to users over a network must offer those users the corresponding source, so improvements made by service providers flow back. Users keep the freedom to run, study, change and share Akela. "Or later" lets the code adopt fixes in future versions of the AGPL published by the Free Software Foundation without asking every contributor.
+
+Costs: some companies avoid AGPL software by policy, which can slow adoption. Dependencies must be compatible with AGPL-3.0 (permissive licenses such as MIT and Apache-2.0 are). Dual licensing (selling a non-AGPL license) is possible only for code whose copyright holders agree to it, so contributions accepted under the AGPL alone cannot be relicensed later. The meaning of future AGPL versions is decided by the Free Software Foundation, not by Akela."""
+
+[[content.alternatives]]
+text = "AGPL-3.0-or-later"
+status = "accepted"
+pros = [
+    "Network use triggers the obligation to offer source",
+    "Can adopt future AGPL versions",
+]
+cons = [
+    "Some companies avoid AGPL software",
+    "Future versions are written by the Free Software Foundation",
+]
+
+[[content.alternatives]]
+text = "AGPL-3.0-only"
+status = "rejected"
+pros = ["Terms never change"]
+cons = ["Moving to a future AGPL version needs every copyright holder's agreement"]
+rejection_reason = "It locks the code to version 3 and is not the form the Free Software Foundation recommends; a later fix to the license could not be applied without contacting every contributor."
+
+[[content.alternatives]]
+text = "GPL-3.0-or-later"
+status = "rejected"
+pros = [
+    "Copyleft on distribution",
+    "More widely accepted than the AGPL",
+]
+cons = ["No obligation for network services"]
+rejection_reason = "A provider running a modified Akela as a service never distributes it, so the GPL would not require publishing the changes."
+
+[[content.alternatives]]
+text = "Permissive license (MIT or Apache-2.0)"
+status = "rejected"
+pros = [
+    "Easiest adoption",
+    "No obligations for derived works",
+]
+cons = ["Modified versions can stay closed, including as a service"]
+rejection_reason = "Third parties could sell managed Akela with closed improvements, competing with Akela's own services without contributing back."
