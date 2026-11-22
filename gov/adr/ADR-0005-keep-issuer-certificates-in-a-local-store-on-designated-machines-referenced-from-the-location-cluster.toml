@@ -1,0 +1,61 @@
+#:schema ../schema/adr.schema.json
+
+[govctl]
+id = "ADR-0005"
+title = "Keep issuer certificates in a local store on designated machines, referenced from the Location Cluster"
+status = "accepted"
+date = "2026-11-22"
+refs = [
+    "RFC-0002:C-CERTIFICATE-CUSTODY",
+    "RFC-0002:C-ISSUANCE-AT-LOCATION",
+    "RFC-0001:C-OFFLINE-OPERATION",
+]
+
+[content]
+context = """
+[[RFC-0002:C-CERTIFICATE-CUSTODY]] requires that an issuer's certificate and private key be usable only on the Location machines a manager designates, never stored (even encrypted) on the Cloud Node or outside the Location's network, never part of the data the Location Cluster replicates; that any Location app client, including a phone, can request issuance; that only users with the issuance permission issue; and that installation works on every supported operating system or through third-party software.
+
+Brazilian issuers use A1 certificates (a file protected by a password) or A3 certificates (a smart card or token, usable only on the machine it is plugged into). The Location must keep issuing offline ([[RFC-0001:C-OFFLINE-OPERATION]]). Every Location Cluster member receives every replicated row, and in the cloud trust scheme the Cloud Node is a member."""
+decision = """
+The certificate stays outside the Location Cluster, in a local store on each machine a manager designates for the issuer: the operating system's certificate store, the Location Agent's own store, or third-party software that already holds it (for example an A3 token's driver). Through the Location Agent, a manager installs, renews and removes it on all of the issuer's designated machines at once, according to each machine's operating system. A certificate installed or held by other means (for example an A3 token's driver) is only referenced; its installation and renewal are the user's responsibility.
+
+The Location Cluster stores only references: which designated machines hold the certificate of which issuer, and which users hold the issuance permission. Issuance requested from any client, including a phone, is routed to a reachable designated machine, which signs and transmits the document."""
+consequences = """
+Benefits: the certificate never reaches the Cloud Node or undesignated machines; a manager can add or remove it per machine; A1 and A3 certificates fit the same model; issuance permission is per user, so for example a sales operator cannot issue while a finance operator can.
+
+Costs: if every designated machine for an issuer is off or unreachable, that issuer cannot issue at the Location, so managers should designate more than one machine when the certificate allows it (an A3 certificate works only where its token is plugged in). Each designated machine holds its own copy, kept current by the Location Agent's fleet-wide install and renewal; copies installed by other means are outside Akela's control. Routing issuance to a designated machine adds a hop for requests from other clients."""
+
+[[content.alternatives]]
+text = "Local store on designated machines, referenced from the Location Cluster"
+status = "accepted"
+pros = [
+    "The certificate never reaches the Cloud Node or undesignated machines",
+    "A manager can remove it from any machine",
+    "Works with A1 and A3 certificates",
+    "Any client, including a phone, can request issuance",
+]
+cons = [
+    "Issuance stops if every designated machine is off",
+    "Installation and renewal on each designated machine",
+]
+
+[[content.alternatives]]
+text = "Certificate stored encrypted in the Location Cluster"
+status = "rejected"
+pros = [
+    "Install and renew once",
+    "Available on whichever machine is Leader",
+]
+cons = [
+    "Replicated to every member, including the Cloud Node",
+    "Cannot be removed from one machine",
+    "The decryption key must live somewhere",
+]
+rejection_reason = "The Location Cluster replicates every row to every member, including the Cloud Node, which RFC-0002 C-CERTIFICATE-CUSTODY forbids, and a certificate could not be removed from a single machine."
+
+[[content.alternatives]]
+text = "Certificate on a single machine that signs for all others"
+status = "rejected"
+pros = ["Only one copy"]
+cons = ["If that machine stops, the Location cannot issue"]
+rejection_reason = "A single point of failure breaks offline operation; designating one machine stays possible as a special case of the accepted option."
