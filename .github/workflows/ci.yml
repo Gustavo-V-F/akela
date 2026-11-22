@@ -35,8 +35,32 @@ jobs:
       - run: rustup target add aarch64-apple-ios
       - run: cargo build --manifest-path ci/hello/Cargo.toml --target aarch64-apple-ios
 
+  # The feasibility tests run only when their own files or the workflows change.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      custody: ${{ steps.diff.outputs.custody }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - id: diff
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          # A new branch, or a previous commit this clone lacks, runs everything.
+          if [ -z "${BEFORE//0/}" ] || ! git cat-file -e "$BEFORE^{commit}" 2>/dev/null; then
+            echo "custody=true" >>"$GITHUB_OUTPUT"
+          elif git diff --name-only "$BEFORE" "$GITHUB_SHA" | grep -qE '^(ci/cert-custody/|\.github/workflows/)'; then
+            echo "custody=true" >>"$GITHUB_OUTPUT"
+          else
+            echo "custody=false" >>"$GITHUB_OUTPUT"
+          fi
+
   # Issuer certificate custody (ADR-0005, WI-2026-11-22-001); Linux runs on OneDev.
   cert-custody-windows:
+    needs: changes
+    if: needs.changes.outputs.custody == 'true'
     runs-on: windows-latest
     defaults:
       run:
@@ -46,6 +70,8 @@ jobs:
       - run: ci/cert-custody/windows.sh
 
   cert-custody-macos:
+    needs: changes
+    if: needs.changes.outputs.custody == 'true'
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
@@ -53,6 +79,8 @@ jobs:
 
   # Java 8 ships on ubuntu-24.04 and windows-2025, not on Ubuntu 26.04, where ubuntu-latest is moving.
   piv-applet:
+    needs: changes
+    if: needs.changes.outputs.custody == 'true'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7

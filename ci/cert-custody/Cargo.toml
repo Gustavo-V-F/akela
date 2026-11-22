@@ -1,5 +1,5 @@
 # Feasibility tests for issuer certificate custody (roadmap 2.2, ADR-0005, WI-2026-11-22-001).
-# shortcut: standalone crate like ci/hello; its store code moves into the fiscal crates when product code starts.
+# Feasibility validation only: it proves the stores can do the job and is not product code; the product writes its own.
 [package]
 name = "akela-ci-cert-custody"
 version = "0.0.0"

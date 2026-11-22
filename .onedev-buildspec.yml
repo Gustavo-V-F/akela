@@ -91,6 +91,7 @@ jobs:
     optional: false
   triggers:
   - type: BranchUpdateTrigger
+    paths: ci/rqlite-3node.sh .onedev-buildspec.yml
     userMatch: anyone
   retryCondition: never
   maxAttempts: 3
@@ -126,6 +127,7 @@ jobs:
     optional: false
   triggers:
   - type: BranchUpdateTrigger
+    paths: ci/rqlite/** .onedev-buildspec.yml
     userMatch: anyone
   retryCondition: never
   maxAttempts: 3
@@ -160,6 +162,7 @@ jobs:
     optional: false
   triggers:
   - type: BranchUpdateTrigger
+    paths: ci/cert-custody/** .onedev-buildspec.yml
     userMatch: anyone
   retryCondition: never
   maxAttempts: 3
