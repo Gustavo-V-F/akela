@@ -9,7 +9,7 @@ since = "0.1.0"
 
 [content]
 text = """
-- **Location:** a business unit (e.g. a store or rental shop) with its own stock and finances.
+- **Location:** a business unit (e.g. a store or rental shop) with its own stock and finances, belonging to exactly one taxpayer (in Brazil, one CNPJ or one CPF) and running on one network (a local network or a VPN) that holds its Location Cluster. Different taxpayers are always different Locations, even on the same network.
 - **Location Cluster:** the rqlite cluster holding one Location's data.
 - **Location app:** the Akela application used at the Location (desktop, web and mobile).
 - **Manager:** a Location user with the permission to approve machines and phones and to run manual procedures.

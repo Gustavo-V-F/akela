@@ -45,3 +45,4 @@ clauses = [
 version = "0.1.0"
 date = "2026-11-21"
 notes = "Initial draft"
+changed = ["Define a Location as one taxpayer on one network"]

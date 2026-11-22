@@ -28,7 +28,7 @@ Use exactly these terms, consistently, in code and docs.
 
 | Term | Meaning |
 | --- | --- |
-| Location | A business unit (e.g. a store or rental shop) with its own stock and finances. Never call it "site" (that word is reserved for the e-commerce **website**). |
+| Location | A business unit (e.g. a store or rental shop) with its own stock and finances, belonging to exactly one taxpayer (in Brazil, one CNPJ or one CPF) and running on one network (local network or VPN) that holds its Location Cluster. Different taxpayers are always different Locations, even on the same network. Never call it "site" (that word is reserved for the e-commerce **website**). |
 | Location Cluster | The rqlite cluster holding one Location's data. |
 | Fixed machine | Wired desktop or server at the Location. |
 | Eligible laptop | Laptop on the Location's network, plugged in, stable for a few minutes. |
