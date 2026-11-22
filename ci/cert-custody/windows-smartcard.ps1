@@ -11,6 +11,14 @@ $work = (New-Item -ItemType Directory -Force (Join-Path $env:RUNNER_TEMP 'smartc
 $pin = '123456' # PivApplet default
 $openssl = "$env:ProgramFiles\Git\usr\bin\openssl.exe"
 
+# Runs a native tool; on failure the error carries its output, since only annotations are public.
+function Invoke-Tool([string]$Exe) {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $out = & $Exe @args 2>&1 | ForEach-Object { "$_" }
+    $out | Write-Host
+    if ($LASTEXITCODE -ne 0) { throw "$(Split-Path -Leaf $Exe) $($args -join ' ') exited $LASTEXITCODE`: $(($out | Select-Object -Last 8) -join ' | ')" }
+}
+
 function Expand-Msi([string]$Url, [string]$Name) {
     # Administrative extraction: the tools without installing their drivers or minidrivers.
     Invoke-WebRequest $Url -OutFile "$work\$Name.msi"
@@ -56,13 +64,13 @@ try {
     Write-Host "card in reader $($reader.Nr): $($reader.Name)"
 
     # Instantiate the applet, then generate the key on the card and certify it with the test CA.
-    & $opensc -r $reader.Nr --send-apdu 80b80000120ba000000308000010000100050000020F0F7f
-    & $ykpiv -r $reader.Name -a set-chuid -a set-ccc
-    & $ykpiv -r $reader.Name -s 9a -a generate -A RSA2048 -o "$work\card.pub"
-    & $ykpiv -r $reader.Name -s 9a -P $pin -a verify-pin -a request-certificate -S '/CN=akela-custody-card/' -i "$work\card.pub" -o "$work\card.csr"
-    & $openssl x509 -req -in "$work\card.csr" -CA "$Fixtures\ca.pem" -CAkey "$Fixtures\ca.key.pem" -CAcreateserial -days 30 -extfile "$Fixtures\issuer.ext" -out "$work\card.crt.pem"
-    & $openssl x509 -in "$work\card.crt.pem" -outform der -out "$work\card.crt.der"
-    & $ykpiv -r $reader.Name -s 9a -a import-certificate -i "$work\card.crt.pem"
+    Invoke-Tool $opensc -r $reader.Nr --send-apdu 80b80000120ba000000308000010000100050000020F0F7f
+    Invoke-Tool $ykpiv -r $reader.Name -a set-chuid -a set-ccc
+    Invoke-Tool $ykpiv -r $reader.Name -s 9a -a generate -A RSA2048 -o "$work\card.pub"
+    Invoke-Tool $ykpiv -r $reader.Name -s 9a -P $pin -a verify-pin -a request-certificate -S '/CN=akela-custody-card/' -i "$work\card.pub" -o "$work\card.csr"
+    Invoke-Tool $openssl x509 -req -in "$work\card.csr" -CA "$Fixtures\ca.pem" -CAkey "$Fixtures\ca.key.pem" -CAcreateserial -days 30 -extfile "$Fixtures\issuer.ext" -out "$work\card.crt.pem"
+    Invoke-Tool $openssl x509 -in "$work\card.crt.pem" -outform der -out "$work\card.crt.der"
+    Invoke-Tool $ykpiv -r $reader.Name -s 9a -a import-certificate -i "$work\card.crt.pem"
 
     # 4. The certificate in the user's store, bound to the card key. Certificate propagation
     # does this on interactive desktops; on a headless runner, bind it explicitly.
