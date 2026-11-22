@@ -51,8 +51,9 @@ jobs:
       - uses: actions/checkout@v7
       - run: ci/cert-custody/macos.sh
 
+  # Java 8 ships on ubuntu-24.04 and windows-2025, not on Ubuntu 26.04, where ubuntu-latest is moving.
   piv-applet:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7
       # The runner image ships Java 8; using it avoids a JDK download on every run.
@@ -69,7 +70,7 @@ jobs:
 
   cert-custody-windows-smartcard:
     needs: piv-applet
-    runs-on: windows-latest
+    runs-on: windows-2025
     steps:
       - uses: actions/checkout@v7
       # The runner image ships Java 8; using it avoids a JDK download on every run.
