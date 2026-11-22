@@ -10,6 +10,8 @@ Everything in this repository is written in **English**: code, identifiers, comm
 
 **Akela** (pronounced a-keh-LAH, /a.keˈla/, stress on the last syllable; spelled without an accent) is an ERP for any kind of business; its initial market focus is e-commerce and furniture/decor rental shops. The name comes from the wolf that leads the pack in Kipling's *The Jungle Book* (Hindi *akelā*, "alone"). Technical identifiers (crates, packages, binaries, repos, domains) use `akela`. Akela is open source; the repository is public.
 
+Akela's core is fiscal issuance offered to customers: any company in Brazil, in any UF and municipality, issues its own documents through Akela, signed with its own digital certificate. Akela's own company may also use the product to issue its documents.
+
 Business context:
 - Each Location has its own stock and finances, with hierarchical access levels. The e-commerce website can see all Locations or only some.
 - Some steps require state validation by the Location's authority; asynchronous replication alone is not enough.
@@ -172,7 +174,8 @@ General rules:
 - Fiscal rules are separated **per country**: each defines its documents, the data each operation requires from each party, numbering and transmission. Each country implements only what its law requires (e.g. the US: sales tax per jurisdiction and exemption certificates, no e-invoicing).
 - Fiscal/financial pending items: each operation declares required data; the system shows what's missing and why. Checked at the Location, works offline.
 - Issuer configured per Location (Brazil: CNPJ; state registration when the Location is an ICMS taxpayer; municipal registration for NFS-e). Two Locations never share a CNPJ. In the cloud, all of a customer's issuers are consolidated in that customer's tenant for administration.
-- Homologation is done at every authorizer where a customer issues (validations vary by UF). Each homologation case stores the sent XML and the authorizer response (status code and reason) as a reference case; on each new Technical Note (NT) or schema package, reference cases are resent and responses compared. Legal rules the authorizer doesn't check (contingency deadlines, document obligation by date/tax regime) get their own tests derived from the legal text.
+- **Coverage (Brazil):** every authorizer of every UF (own SEFAZ, SVRS, SVAN and contingency authorizers). NFS-e uses only the national model (Sefin Nacional/ADN), which covers MEI (mandatory since 2023-09-01, Resolução CGSN 169/2022), Simples Nacional ME/EPP (mandatory since 2026-11-01, Resolução CGSN 191/2026) and every company in municipalities that use the national issuer. Municipalities that keep their own NFS-e system under LC 214/2025 are not supported, except a very large city when worth it; other municipal systems may be added later. An authorizer counts as supported only after it has reference cases from real homologation.
+- Homologation is done at every authorizer Akela supports, with an issuer registered there (validations vary by UF). Each homologation case stores the sent XML and the authorizer response (status code and reason) as a reference case; on each new Technical Note (NT) or schema package, reference cases are resent and responses compared. Legal rules the authorizer doesn't check (contingency deadlines, document obligation by date/tax regime) get their own tests derived from the legal text.
 - Initially the fiscal core uses forks of compatibly-licensed third-party libraries, replaced gradually by in-house code; each replaced part goes live only after meeting the conformance criterion in homologation and production.
 
 Brazilian terms (kept as proper names): **NF-e** (electronic invoice, model 55), **NFC-e** (consumer invoice, model 65), **NFS-e** (service invoice, national standard; submitted as a **DPS**), **CT-e** (transport document, model 57), **MDF-e** (cargo manifest, model 58), **SEFAZ** (state tax authority), **SVRS/SVAN/SVSP** (shared virtual authorizers), **SVC-AN/SVC-RS/SVC-SP** (contingency authorizers), **ADN** (NFS-e national data environment), **CNPJ/CPF** (company/individual tax IDs), **CFOP** (fiscal operation code), **UF** (Brazilian state), **ICMS** (state VAT), **RICMS** (state ICMS regulation), **Simples Nacional** (simplified tax regime), **MEI** (individual micro-entrepreneur), **ISS** (municipal service tax), **IPI** (federal excise on manufactured goods), **PIS/Cofins** (federal contributions replaced by CBS), **CBS** (federal VAT), **IBS** (state/municipal VAT), **IS** (Imposto Seletivo, excise on harmful goods), **ZFM** (Manaus Free Trade Zone).
@@ -204,7 +207,7 @@ Typical uses, not exhaustive: every document is implemented for every operation 
 | --- | --- | --- | --- |
 | NF-e (55) | B2B and interstate sales, returns, inbound; shipment of goods for rental without ICMS (SP: CFOP 5.908/6.908) and return of rented goods | The Location. Return in SP: ICMS-taxpayer lessee issues outbound NF-e (CFOP 5.909/6.909); non-taxpayer → Location issues inbound NF-e (CFOP 1.909/2.909) referencing the shipment NF-e. Other UFs: per their RICMS | Own SEFAZ (AM, BA, GO, MG, MS, MT, PE, PR, RS, SP), SVRS (other UFs except MA), SVAN (MA). Contingency: SVC-AN or SVC-RS per UF |
 | NFC-e (65) | In-person sale to end consumer | The Location | Own SEFAZ (AM, GO, MG, MS, MT, PR, RS, SP) or SVRS. Offline contingency on the machine |
-| NFS-e (national) | Rental of movable goods; services (assembly, installation); intra-municipal freight for third parties | The Location | Sefin Nacional (national issuer, registered in ADN) or the municipality's own issuer (shares with ADN) |
+| NFS-e (national) | Rental of movable goods; services (assembly, installation); intra-municipal freight for third parties | The Location | Sefin Nacional (national issuer, registered in ADN). Municipal NFS-e systems are out of scope (see Coverage) |
 | MDF-e (58) | Goods transport in own/leased vehicle or with independent carrier, when the UF requires | Whoever transports (the Location for own delivery) | SVRS for all UFs |
 | CT-e (57) | Only when the Location provides inter-municipal/interstate transport to third parties | The transporting Location | Own SEFAZ (MG, MS, MT, PR, RS, SP), SVSP (AP, PE, RR) or SVRS (others). Contingency: SVC-SP or SVC-RS |
 
@@ -339,10 +342,12 @@ Done when a 3-node rqlite test (kill one node, a new Leader is elected) runs on 
 - Get the test issuer's digital certificate.
 - Get homologation access for:
   - NF-e and NFC-e, at the issuer state's SEFAZ, including the NFC-e CSC token;
-  - NFS-e, at Sefin Nacional/ADN, or the municipality's own issuer if it has one;
+  - NFS-e, in the national restricted environment (Produção Restrita, Sefin Nacional/ADN);
   - MDF-e, at SVRS;
   - CT-e, at the issuer state's authorizer.
 - Enable the document distribution service, for recipient acknowledgement.
+
+This covers one test issuer in one UF plus the national NFS-e restricted environment (Produção Restrita). Other UFs are homologated with issuers registered there (partner or pilot customers), as part of 3.3.
 
 Done when each document and the acknowledgement can send a test request and get a response.
 
@@ -404,7 +409,7 @@ Done when installation works offline and the laptop is always demoted before it 
 **3.2 Local trust schemes.** Schemes 1 (approved list of self-signed certificates) and 2 (step-ca on a fixed machine), with the registry tables in the Location Cluster, manager approval, blocking, and the move from scheme 1 to 2 (from the approved list to a step-ca on a Location machine). Done when a Location under each scheme enrolls, blocks and re-enrolls machines with no internet at all.
 
 **3.3 Complete fiscal core.**
-- **Documents:** NF-e, NFC-e, NFS-e, MDF-e, CT-e first; then any other document the law defines, per the fiscal-core scope.
+- **Documents:** NF-e, NFC-e, NFS-e, MDF-e, CT-e first, for every UF authorizer and NFS-e through the national model (see Coverage); then any other document the law defines, per the fiscal-core scope.
 - **Taxes and regimes:** ICMS, ISS, IPI, CBS, IBS, IS with effective-dated rates; regular, Simples Nacional and MEI; specific and differentiated regimes.
 - **NF-e/NFC-e events:** cancellation and number voiding; correction letter for NF-e only.
 - **MDF-e events:** cancellation and closure.
