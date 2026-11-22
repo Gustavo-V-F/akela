@@ -1,0 +1,26 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-CONTINGENCY"
+title = "Contingency issuance"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+When a document's authorizer cannot authorize it, the Location MUST be able to issue it in every contingency mode the legislation provides for that document:
+
+- NF-e: SVC, EPEC (registered at the Ambiente Nacional) and FS-DA;
+- NFC-e: offline contingency;
+- CT-e: SVC, EPEC (model 57, registered at the SVC) and FS-DA;
+- MDF-e: offline contingency.
+
+SVC MUST be used only while the origin authorizer keeps it activated, and a document authorized by SVC MUST NOT be resent to the origin authorizer.
+
+FS-DA MUST print the auxiliary document (DANFE or DACTE) on the Location's printer, on the security form, in the number of copies the legislation requires, leaving the form's fiscal area and pre-printed barcode untouched.
+
+A contingency document MUST NOT reuse a number already transmitted in another emission mode.
+
+Documents issued in EPEC, FS-DA or offline contingency MUST be queued at the Location and transmitted automatically when the authorizer becomes reachable, with retries until each has a final response. The Location app MUST warn before a queued document reaches its legal transmission deadline.
+
+Cancellation of a document authorized in normal mode MUST wait until its origin authorizer is available again."""

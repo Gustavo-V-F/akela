@@ -8,9 +8,11 @@ status = "active"
 
 [content]
 text = """
-Akela MUST support these events, at every supported authorizer:
+Akela MUST support, at every supported authorizer:
 
-- NF-e and NFC-e: cancellation and number voiding;
+- NF-e and NFC-e: cancellation, and voiding of unused numbers (a separate service, not an event);
 - NF-e only: correction letter (NFC-e rejects it, rejection 784);
 - MDF-e: cancellation and closure;
-- purchase NF-e: recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed), after querying received documents through the national distribution service."""
+- CT-e (model 57): cancellation, correction letter, EPEC (registered at the contingency authorizer, SVC), multimodal records, and delivery receipt and its cancellation.
+
+For purchase NF-e, Akela MUST query received documents through the national distribution service and MUST register the recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed) at the Ambiente Nacional."""

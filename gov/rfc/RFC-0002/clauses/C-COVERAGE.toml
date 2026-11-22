@@ -8,7 +8,7 @@ status = "active"
 
 [content]
 text = """
-Akela MUST support NF-e, NFC-e, MDF-e and CT-e at every authorizer of every UF, including the shared virtual and contingency authorizers.
+Every authorizer of every UF, including the shared virtual and contingency authorizers, is in scope for NF-e, NFC-e, MDF-e and CT-e. Akela MUST issue these documents at every authorizer declared supported under [[RFC-0002:C-SUPPORTED-AUTHORIZER]].
 
 NFS-e MUST be issued only through the national model (Sefin Nacional and ADN). This covers MEI, Simples Nacional ME and EPP in every municipality, and every company in municipalities that use the national issuer.
 

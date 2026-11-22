@@ -8,7 +8,7 @@ status = "active"
 
 [content]
 text = """
-Each machine that may operate as primary MUST have its own reserved series per model, unique among the issuer's machines and different from the normal series.
+Each machine that may operate as primary MUST have its own reserved series per model, including the DPS, unique among the issuer's machines and different from the normal series.
 
 A reserved series MUST be used only while that machine operates as primary after "Take over as primary"; the majority side MUST keep using the normal series.
 

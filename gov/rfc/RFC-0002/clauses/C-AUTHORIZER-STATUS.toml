@@ -8,8 +8,8 @@ status = "active"
 
 [content]
 text = """
-The authorizer status feed from the cloud MUST be treated as auxiliary.
+Authorizer status received from the cloud's authorizer-status service MUST be treated as auxiliary.
 
-Before switching to or from contingency, the Location MUST confirm the authorizer's state with the authorizer's own service-status query. Without the feed, the Location MUST decide from the authorizer's responses alone.
+Before switching to or from contingency, the Location MUST confirm the authorizer's state with the authorizer's own service-status query. Without that service, the Location MUST decide from the authorizer's responses alone.
 
-There is no availability monitoring for NFS-e."""
+NFS-e issuance MUST NOT depend on any availability signal."""

@@ -8,7 +8,7 @@ status = "active"
 
 [content]
 text = """
-The expected result of every fiscal test MUST be a stored reference case: the sent XML, the authorizer's status code and its reason. A fiscal test whose expected result has no reference case MUST fail.
+The expected result of every test of an authorizer's behaviour MUST be a stored reference case: the sent XML, the authorizer's status code and its reason. Such a test whose expected result has no reference case MUST fail.
 
 Tests and data from third-party libraries MAY be used only as inputs, never as expected results.
 
