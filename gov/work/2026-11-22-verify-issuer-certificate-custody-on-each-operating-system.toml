@@ -1,0 +1,143 @@
+#:schema ../schema/work.schema.json
+
+[govctl]
+id = "WI-2026-11-22-001"
+title = "Verify issuer certificate custody on each operating system"
+status = "active"
+created = "2026-11-22"
+started = "2026-11-22"
+refs = [
+    "RFC-0002",
+    "RFC-0002:C-CERTIFICATE-CUSTODY",
+    "RFC-0002:C-ISSUANCE-AT-LOCATION",
+    "RFC-0001:C-OFFLINE-OPERATION",
+    "ADR-0005",
+]
+
+[content]
+description = """Prove with automated tests, as the first part of roadmap 2.2 (fiscal feasibility), that the certificate custody chosen in [[ADR-0005]] works on every supported operating system before any fiscal product code depends on it. In Akela the issuer certificate has two uses, both fiscal: signing documents and events (XML signature with RSA-SHA1) and authenticating the client in the mutual TLS connection to authorizers, the Ambiente Nacional and Sefin Nacional/ADN. Each local store outside the Location Cluster must support both uses from Rust while keeping the private key inside it: the operating system's store, a file store owned by the agent's service account, a PKCS#11 token, and on Windows a smart card reached through the certificate store. Tests need no ICP-Brasil certificate: they use a self-generated RSA certificate in PKCS#12 form like an A1, a software PKCS#11 token (SoftHSM2) and, on Windows, an emulated PIV card (PivApplet on jCardSim behind the vsmartcard virtual reader) seen through the Windows inbox PIV minidriver, standing in for A3 tokens. Linux runs on OneDev, Windows and macOS on GitHub Actions. Also records a "store → exists / how / limits" table. A missing capability reopens [[ADR-0005]], and [[RFC-0002:C-CERTIFICATE-CUSTODY]] if no store is viable on an operating system. Fleet-wide installation, routing issuance to a designated machine and the issuance permission are product behaviour built with the Location Agent and the fiscal core, not part of this item."""
+
+[[content.acceptance_criteria]]
+text = "Windows: a PKCS#12 certificate imported into the current user's certificate store with a non-exportable key produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: the same key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: exporting that private key from the certificate store fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: after the certificate is removed from the certificate store, signing with it fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "macOS: a PKCS#12 certificate imported into a keychain with a non-extractable key produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "macOS: the same key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "macOS: exporting that private key from the keychain fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "macOS: after the certificate is removed from the keychain, signing with it fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Linux: a PKCS#12 certificate kept in a file store readable only by the agent's service account produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Linux: the same key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Linux: another operating-system user cannot read that file store."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Linux: after the certificate is removed from the file store, signing with it fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Linux: a certificate on a software PKCS#11 token with a non-extractable key, referenced by the token's module and slot, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Linux: the same PKCS#11 key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Linux: reading that private key out of the PKCS#11 token fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "macOS: a certificate on a software PKCS#11 token with a non-extractable key, referenced by the token's module and slot, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "macOS: the same PKCS#11 key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "macOS: reading that private key out of the PKCS#11 token fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: a certificate on a software PKCS#11 token with a non-extractable key, referenced by the token's module and slot, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: the same PKCS#11 key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: reading that private key out of the PKCS#11 token fails."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: a certificate on an emulated PIV smart card, found in the certificate store through the inbox PIV minidriver, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "Windows: the same smart card key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = "No test writes the certificate or its private key into an rqlite data directory or sends it through the rqlite API."
+status = "pending"
+category = "chore"
+
+[[content.acceptance_criteria]]
+text = 'A "store → exists / how / limits" table covers every store and operating system above.'
+status = "pending"
+category = "chore"

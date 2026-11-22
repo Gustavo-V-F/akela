@@ -10,7 +10,7 @@ status = "active"
 text = """
 An issuer's certificate and private key MUST be usable only on the Location machines a manager designates for that issuer. They MUST NOT be stored, even encrypted, on the Cloud Node or on any machine outside the Location's network, and MUST NOT be part of the data replicated by the Location Cluster.
 
-Issuance MAY be requested from any client of the Location app, including a phone; the document MUST then be signed on a designated machine.
+Issuance MAY be requested from any client of the Location app, including a phone; the document MUST then be signed on a designated machine. Every request that authenticates with the issuer's certificate (the certificate also authenticates the client in the mutual TLS connection to authorizers, the Ambiente Nacional and Sefin Nacional) MUST likewise be made from a designated machine.
 
 Only users to whom a manager has granted the issuance permission MAY issue, cancel or register events for the issuer's documents.
 

@@ -174,7 +174,7 @@ General rules:
 - Fiscal rules are separated **per country**: each defines its documents, the data each operation requires from each party, numbering and transmission. Each country implements only what its law requires (e.g. the US: sales tax per jurisdiction and exemption certificates, no e-invoicing).
 - Fiscal/financial pending items: each operation declares required data; the system shows what's missing and why. Checked at the Location, works offline.
 - Issuer configured per Location (Brazil: CNPJ, or CPF where the law allows, such as a rural producer; state registration when the Location is an ICMS taxpayer; municipal registration for NFS-e). Two Locations never share an issuer. In the cloud, all of a customer's issuers are consolidated in that customer's tenant for administration.
-- Issuer certificate (A1 or A3): kept outside the Location Cluster, in a local store on the machines a manager designates (operating-system store, the Location Agent's store, or third-party software such as an A3 token driver); never on the Cloud Node nor replicated. The Location Cluster keeps only which machines hold it and which users may issue. Any client, including a phone, can request issuance; a designated machine signs. The Location Agent installs and renews the certificate on all designated machines at once; a certificate installed by other means is only referenced, and its upkeep is the user's responsibility. ADR-0005 (certificate custody).
+- Issuer certificate (A1 or A3): kept outside the Location Cluster, in a local store on the machines a manager designates (operating-system store, the Location Agent's store, or third-party software such as an A3 token driver); never on the Cloud Node nor replicated. The Location Cluster keeps only which machines hold it and which users may issue. Any client, including a phone, can request issuance; a designated machine signs and transmits, since the certificate also authenticates the mutual TLS connection to authorizers. The Location Agent installs and renews the certificate on all designated machines at once; a certificate installed by other means is only referenced, and its upkeep is the user's responsibility. ADR-0005 (certificate custody).
 - **Coverage (Brazil):** every authorizer of every UF (own SEFAZ, SVRS, SVAN and contingency authorizers). NFS-e uses only the national model (Sefin Nacional/ADN), which covers MEI (mandatory since 2023-09-01, Resolução CGSN 169/2022), Simples Nacional ME/EPP (mandatory since 2026-11-01, Resolução CGSN 191/2026) and every company in municipalities that use the national issuer. Municipalities that keep their own NFS-e system under LC 214/2025 are not supported, except a municipality with a very large population or a very large number of companies; other municipal systems may be added later. An authorizer counts as supported only after it has reference cases from real homologation.
 - Homologation is done at every authorizer Akela supports, with an issuer registered there (validations vary by UF). Each homologation case stores the sent XML and the authorizer response (status code and reason) as a reference case; on each new Technical Note (NT) or schema package, reference cases are resent and responses compared. Legal rules the authorizer doesn't check (contingency deadlines, document obligation by date/tax regime) get their own tests derived from the legal text.
 - Initially the fiscal core uses forks of compatibly-licensed third-party libraries, replaced gradually by in-house code; each replaced part goes live only after meeting the conformance criterion in homologation and production.
@@ -366,7 +366,15 @@ Done when each document and the acknowledgement can send a test request and get 
 
 Done when a "capability → exists / how / limits" table exists, backed by one automated test per item.
 
-**2.2 ⚠ Fiscal feasibility.** In homologation, from Rust:
+**2.2 ⚠ Fiscal feasibility.**
+
+First, certificate custody (ADR-0005). On Windows, macOS and Linux, an issuer certificate kept in each local store must do both of its jobs from Rust: sign documents and authenticate the TLS connection to the authorizer. Its private key must never leave the store. The stores are:
+- the operating system's store;
+- the agent's own store;
+- a PKCS#11 token;
+- on Windows, a smart card seen through the certificate store.
+
+Then, in homologation, from Rust:
 - issue 1 NF-e;
 - issue 1 NFC-e, including in offline contingency;
 - issue 1 NFS-e;
@@ -374,7 +382,7 @@ Done when a "capability → exists / how / limits" table exists, backed by one a
 - issue 1 CT-e;
 - query received NF-e and register a recipient acknowledgement.
 
-Done when all are authorized or registered, with an estimate of the in-house work remaining.
+Done when the certificate does both jobs from every store on every operating system, and every document and event above is authorized or registered, with an estimate of the in-house work remaining.
 
 **2.3 Domain spec.** Products, stock, rentable units, rental contracts, sales, finance and hierarchical access. Each operation gets its rules, its required data and the fiscal document it produces. Also defines the readable-code details left open by RFC-0001 (Location core architecture): the Location code, the type letters, the sequence width, what happens when a sequence overflows, and the normal generation format without a Central Registry.
 
