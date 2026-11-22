@@ -2,10 +2,19 @@
 # macOS certificate custody tests (WI-2026-11-22-001): a keychain with non-extractable keys and
 # a PKCS#11 token. Runs on a GitHub Actions macOS runner.
 set -euo pipefail
+# GitHub shows annotations publicly; job logs need a token.
+[ -z "${GITHUB_ACTIONS:-}" ] || trap 'rc=$?; echo "::error file=ci/cert-custody/${0##*/},line=$LINENO::exit $rc from: $BASH_COMMAND"' ERR
 here=$(cd "$(dirname "$0")" && pwd)
 HOMEBREW_NO_AUTO_UPDATE=1 brew install -q softhsm openssl@3 >/dev/null
 export PATH="$(brew --prefix openssl@3)/bin:$PATH"
 work=$(mktemp -d)
+# Runs the tests; on GitHub, failing assertions also become annotations.
+annotate_tests() {
+    "$@" 2>&1 | tee "$work/test.log" && return 0
+    [ -z "${GITHUB_ACTIONS:-}" ] || grep -E "panicked|FAILED|Error|error" "$work/test.log" | head -20 | sed 's/^/::error::/'
+    return 1
+}
+
 fx=$work/fixtures
 "$here/make-fixtures.sh" "$fx"
 
@@ -26,4 +35,4 @@ module="$(brew --prefix softhsm)/lib/softhsm/libsofthsm2.so"
 
 CUSTODY_FIXTURES=$fx CUSTODY_KEYCHAIN=$kc CUSTODY_KEYCHAIN_PASSWORD=$pw \
 CUSTODY_PKCS11_MODULE=$module CUSTODY_PKCS11_TOKEN=akela-test CUSTODY_PKCS11_PIN=1234 \
-    cargo test --manifest-path "$here/Cargo.toml" --test keychain --test pkcs11 --test harness
+    annotate_tests cargo test --manifest-path "$here/Cargo.toml" --test keychain --test pkcs11 --test harness

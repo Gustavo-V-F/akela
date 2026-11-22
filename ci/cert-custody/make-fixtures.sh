@@ -4,6 +4,8 @@
 # (3DES, SHA-1 MAC, password "test", the format ICP-Brasil A1 files use) plus their PEM key and DER.
 # Usage: make-fixtures.sh DIR
 set -euo pipefail
+# GitHub shows annotations publicly; job logs need a token.
+[ -z "${GITHUB_ACTIONS:-}" ] || trap 'rc=$?; echo "::error file=ci/cert-custody/${0##*/},line=$LINENO::exit $rc from: $BASH_COMMAND"' ERR
 export MSYS_NO_PATHCONV=1 # Git Bash on Windows must not rewrite "/CN=..." as a path
 mkdir -p "$1"
 cd "$1"

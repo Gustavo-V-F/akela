@@ -5,6 +5,7 @@
 # Usage: windows-smartcard.ps1 -Fixtures DIR -Applet DIR
 param([Parameter(Mandatory)][string]$Fixtures, [Parameter(Mandatory)][string]$Applet)
 $ErrorActionPreference = 'Stop'
+trap { Write-Host "::error file=ci/cert-custody/windows-smartcard.ps1,line=$($_.InvocationInfo.ScriptLineNumber)::$($_.Exception.Message -replace '\r?\n',' | ')"; break }
 $PSNativeCommandUseErrorActionPreference = $true
 $work = (New-Item -ItemType Directory -Force (Join-Path $env:RUNNER_TEMP 'smartcard')).FullName
 $pin = '123456' # PivApplet default
@@ -70,8 +71,15 @@ try {
     $env:CUSTODY_FIXTURES = $Fixtures
     $env:CUSTODY_SMARTCARD_CERT = "$work\card.crt.der"
     $env:CUSTODY_SMARTCARD_PIN = $pin
-    cargo test --manifest-path "$PSScriptRoot\Cargo.toml" --test smartcard
+    $PSNativeCommandUseErrorActionPreference = $false
+    $out = cargo test --manifest-path "$PSScriptRoot\Cargo.toml" --test smartcard 2>&1 | ForEach-Object { "$_" }
+    $out | Write-Host
+    if ($LASTEXITCODE -ne 0) {
+        $out | Select-String 'panicked|FAILED|error' | Select-Object -First 20 | ForEach-Object { Write-Host "::error::$_" }
+        throw 'smart card tests failed'
+    }
 } catch {
+    Write-Host "::error file=ci/cert-custody/windows-smartcard.ps1,line=$($_.InvocationInfo.ScriptLineNumber)::$($_.Exception.Message -replace '\r?\n',' | ')"
     Get-Content "$work\jcardsim.out", "$work\jcardsim.err" -ErrorAction SilentlyContinue | Select-Object -Last 40
     throw
 } finally {

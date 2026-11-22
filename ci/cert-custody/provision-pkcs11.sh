@@ -3,6 +3,8 @@
 # sensitive and non-extractable, and its certificate, both labelled "issuer".
 # Usage: provision-pkcs11.sh FIXTURES MODULE   (SOFTHSM2_CONF must name a config with a tokendir)
 set -euo pipefail
+# GitHub shows annotations publicly; job logs need a token.
+[ -z "${GITHUB_ACTIONS:-}" ] || trap 'rc=$?; echo "::error file=ci/cert-custody/${0##*/},line=$LINENO::exit $rc from: $BASH_COMMAND"' ERR
 fx=$1 module=$2
 softhsm2-util --init-token --free --label akela-test --pin 1234 --so-pin 5678 >/dev/null
 softhsm2-util --import "$fx/issuer.key.pem" --token akela-test --label issuer --id 01 --pin 1234 >/dev/null

@@ -6,6 +6,13 @@ here=$(cd "$(dirname "$0")" && pwd)
 export DEBIAN_FRONTEND=noninteractive
 apt-get update -qq && apt-get install -y -qq softhsm2 >/dev/null
 work=$(mktemp -d)
+# Runs the tests; on GitHub, failing assertions also become annotations.
+annotate_tests() {
+    "$@" 2>&1 | tee "$work/test.log" && return 0
+    [ -z "${GITHUB_ACTIONS:-}" ] || grep -E "panicked|FAILED|Error|error" "$work/test.log" | head -20 | sed 's/^/::error::/'
+    return 1
+}
+
 chmod 755 "$work"
 fx=$work/fixtures
 "$here/make-fixtures.sh" "$fx"
@@ -24,4 +31,4 @@ module=$(dpkg -L softhsm2-common libsofthsm2 2>/dev/null | grep -m1 '/libsofthsm
 
 CUSTODY_FIXTURES=$fx CUSTODY_FILE_STORE=$store CUSTODY_FILE_OWNER=akela-agent CUSTODY_OTHER_USER=other \
 CUSTODY_PKCS11_MODULE=$module CUSTODY_PKCS11_TOKEN=akela-test CUSTODY_PKCS11_PIN=1234 \
-    cargo test --manifest-path "$here/Cargo.toml" --test file_store --test pkcs11 --test harness
+    annotate_tests cargo test --manifest-path "$here/Cargo.toml" --test file_store --test pkcs11 --test harness
