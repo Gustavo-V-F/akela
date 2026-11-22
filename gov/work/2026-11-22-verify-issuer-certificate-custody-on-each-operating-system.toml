@@ -3,9 +3,10 @@
 [govctl]
 id = "WI-2026-11-22-001"
 title = "Verify issuer certificate custody on each operating system"
-status = "active"
+status = "done"
 created = "2026-11-22"
 started = "2026-11-22"
+completed = "2026-11-22"
 refs = [
     "RFC-0002",
     "RFC-0002:C-CERTIFICATE-CUSTODY",
@@ -19,125 +20,125 @@ description = """Prove with automated tests, as the first part of roadmap 2.2 (f
 
 [[content.acceptance_criteria]]
 text = "Windows: a PKCS#12 certificate imported into the current user's certificate store with a non-exportable key produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: the same key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: exporting that private key from the certificate store fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: after the certificate is removed from the certificate store, signing with it fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "macOS: a PKCS#12 certificate imported into a keychain with a non-extractable key produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "macOS: the same key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "macOS: exporting that private key from the keychain fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "macOS: after the certificate is removed from the keychain, signing with it fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Linux: a PKCS#12 certificate kept in a file store readable only by the agent's service account produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Linux: the same key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Linux: another operating-system user cannot read that file store."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Linux: after the certificate is removed from the file store, signing with it fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Linux: a certificate on a software PKCS#11 token with a non-extractable key, referenced by the token's module and slot, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Linux: the same PKCS#11 key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Linux: reading that private key out of the PKCS#11 token fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "macOS: a certificate on a software PKCS#11 token with a non-extractable key, referenced by the token's module and slot, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "macOS: the same PKCS#11 key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "macOS: reading that private key out of the PKCS#11 token fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: a certificate on a software PKCS#11 token with a non-extractable key, referenced by the token's module and slot, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: the same PKCS#11 key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: reading that private key out of the PKCS#11 token fails."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: a certificate on an emulated PIV smart card, found in the certificate store through the inbox PIV minidriver, produces, from Rust, an RSA-SHA1 signature (PKCS#1 v1.5) that verifies against its certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "Windows: the same smart card key authenticates a Rust client in a TLS 1.2 handshake with a test server that requires a client certificate."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = "No test writes the certificate or its private key into an rqlite data directory or sends it through the rqlite API."
-status = "pending"
+status = "done"
 category = "chore"
 
 [[content.acceptance_criteria]]
 text = 'A "store → exists / how / limits" table covers every store and operating system above.'
-status = "pending"
+status = "done"
 category = "chore"
