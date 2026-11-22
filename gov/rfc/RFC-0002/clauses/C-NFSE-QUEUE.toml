@@ -1,0 +1,13 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-NFSE-QUEUE"
+title = "NFS-e queue and retries"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+When Sefin Nacional cannot be reached or fails to answer, the DPS MUST stay queued at the Location and be retried automatically.
+
+Before each retry, the Location MUST query Sefin Nacional by the DPS identifier, and MUST NOT resend a DPS whose NFS-e was already generated. No DPS MAY produce two NFS-e."""

@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-NUMBERING"
+title = "Numbering by the Leader"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Documents with issuer-assigned numbers (NF-e, NFC-e, MDF-e, CT-e) MUST be numbered per issuer, model and series, each series with its own sequence.
+
+Only the Leader of the Location Cluster MAY assign a number in the Location's normal series ([[RFC-0001:C-LEADER-AUTHORITY]]). The same issuer, model, series and number MUST NOT be assigned twice, including while the Location is offline.
+
+NFS-e numbers are assigned by Sefin Nacional. Gaps in an issuer's NFS-e numbering MUST NOT be reported as errors."""

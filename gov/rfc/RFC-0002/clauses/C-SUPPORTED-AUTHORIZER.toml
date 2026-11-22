@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-SUPPORTED-AUTHORIZER"
+title = "An authorizer is supported only with reference cases"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+An authorizer MUST be declared supported only after it has reference cases, from real homologation, for every document type and event Akela issues there.
+
+Reference cases for an authorizer MUST be produced by an issuer that the authorizer accepts in homologation: for a UF's own SEFAZ, an issuer of that UF; for a shared virtual authorizer, an issuer of any UF it serves.
+
+Issuance at an authorizer that is not declared supported MUST be refused as in [[RFC-0002:C-COVERAGE]]."""

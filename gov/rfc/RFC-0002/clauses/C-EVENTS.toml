@@ -1,0 +1,16 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-EVENTS"
+title = "Document events"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Akela MUST support these events, at every supported authorizer:
+
+- NF-e and NFC-e: cancellation and number voiding;
+- NF-e only: correction letter (NFC-e rejects it, rejection 784);
+- MDF-e: cancellation and closure;
+- purchase NF-e: recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed), after querying received documents through the national distribution service."""

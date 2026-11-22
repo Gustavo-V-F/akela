@@ -1,0 +1,13 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-ISSUANCE-AT-LOCATION"
+title = "Issuance only by the Location app"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Fiscal documents MUST be issued and transmitted only by the Location app installation of the issuing Location, including a cloud-only Location's single installation.
+
+No cloud service (Central Registry, CDC Receiver, Consolidated Postgres, Orchestrator) MAY hold an issuer's certificate or private key, or issue or transmit a document. Documents reach the Consolidated Postgres only after issuance, through CDC ([[RFC-0001:C-CLOUD-BOUNDARY]])."""

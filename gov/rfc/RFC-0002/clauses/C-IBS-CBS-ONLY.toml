@@ -1,0 +1,10 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-IBS-CBS-ONLY"
+title = "IBS/CBS-only taxpayers"
+kind = "normative"
+status = "active"
+
+[content]
+text = "For an issuer that is an IBS/CBS-only taxpayer (no state registration, not an ICMS taxpayer; NT 2026.007), NF-e and the issuer's own NF-e events MUST be sent to SVRS whatever the UF, and NFC-e MUST NOT be issued for that issuer until 2033."

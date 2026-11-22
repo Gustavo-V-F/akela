@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-NFCE-CONTINGENCY"
+title = "NFC-e offline contingency"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+When the NFC-e authorizer cannot be reached, the Location MUST be able to issue NFC-e in offline contingency.
+
+Documents issued in contingency MUST be queued at the Location and transmitted automatically when the authorizer becomes reachable, with retries until each has a final response.
+
+The Location app MUST warn before a queued document reaches the transmission deadline of the issuer's UF."""

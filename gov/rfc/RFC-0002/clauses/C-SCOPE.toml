@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-SCOPE"
+title = "Scope"
+kind = "informative"
+status = "active"
+
+[content]
+text = """
+This RFC specifies how Akela issues and transmits Brazilian fiscal documents for its customers: any company in Brazil, in any UF and municipality, issuing its own documents through Akela with its own digital certificate. Akela's own company may use the product the same way.
+
+It covers: who issues and where the certificate lives; which documents, authorizers and municipalities are supported; numbering and series; offline contingency and retries; the authorizer status signal; document events; and how conformance is proven.
+
+Out of scope, specified elsewhere: other countries; the tax calculation itself (rates, apportionment regimes, effective-dated tables); the domain operations that produce documents (roadmap 2.3); municipal NFS-e systems other than the national model. Location authority and recovery are defined in [[RFC-0001]]. Terms are defined in [[RFC-0002:C-TERMS]]."""

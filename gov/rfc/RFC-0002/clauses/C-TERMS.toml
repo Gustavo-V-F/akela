@@ -1,0 +1,17 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-TERMS"
+title = "Terms"
+kind = "informative"
+status = "active"
+
+[content]
+text = """
+- **Issuer**: the company (CNPJ) that issues a document; in Akela, one per Location.
+- **Authorizer**: the tax service that authorizes or generates a document: a UF's own SEFAZ, a shared virtual authorizer (SVRS, SVAN, SVSP), a contingency authorizer (SVC-AN, SVC-RS, SVC-SP), or the national NFS-e service (Sefin Nacional, with documents shared in ADN).
+- **Homologation**: an authorizer's test environment, without legal validity; for the national NFS-e it is the restricted environment (Produção Restrita).
+- **Reference case**: a document sent to an authorizer in homologation, stored with the authorizer's status code and reason.
+- **DPS**: the service declaration that the issuer sends to Sefin Nacional; Sefin Nacional validates it and generates the NFS-e.
+- **CSC**: the NFC-e security code (ID and token) issued by the UF, one pair per environment.
+- **Reserved series**: a document series assigned to one machine for use only while it operates as primary after "Take over as primary" ([[RFC-0001:C-MANUAL-RECOVERY]])."""

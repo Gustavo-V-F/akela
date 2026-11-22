@@ -1,0 +1,13 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-ISSUER-PER-LOCATION"
+title = "One issuer per Location"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Each Location MUST issue as exactly one issuer. Two Locations MUST NOT share a CNPJ.
+
+Each issuer's documents MUST be signed with that issuer's own ICP-Brasil digital certificate."""

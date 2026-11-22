@@ -1,0 +1,15 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-AUTHORIZER-STATUS"
+title = "Authorizer status signal"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+The authorizer status feed from the cloud MUST be treated as auxiliary.
+
+Before switching to or from contingency, the Location MUST confirm the authorizer's state with the authorizer's own service-status query. Without the feed, the Location MUST decide from the authorizer's responses alone.
+
+There is no availability monitoring for NFS-e."""

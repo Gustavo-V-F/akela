@@ -1,0 +1,40 @@
+#:schema ../../schema/rfc.schema.json
+
+[govctl]
+id = "RFC-0002"
+title = "Brazil fiscal core"
+version = "0.1.0"
+status = "draft"
+phase = "spec"
+owners = ["@Gustavo-V-F"]
+created = "2026-11-21"
+
+[[sections]]
+title = "Summary"
+clauses = [
+    "clauses/C-SCOPE.toml",
+    "clauses/C-TERMS.toml",
+]
+
+[[sections]]
+title = "Specification"
+clauses = [
+    "clauses/C-ISSUER-PER-LOCATION.toml",
+    "clauses/C-ISSUANCE-AT-LOCATION.toml",
+    "clauses/C-COVERAGE.toml",
+    "clauses/C-SUPPORTED-AUTHORIZER.toml",
+    "clauses/C-CONFORMANCE.toml",
+    "clauses/C-NUMBERING.toml",
+    "clauses/C-RESERVED-SERIES.toml",
+    "clauses/C-NFCE-CONTINGENCY.toml",
+    "clauses/C-NFSE-QUEUE.toml",
+    "clauses/C-AUTHORIZER-STATUS.toml",
+    "clauses/C-EVENTS.toml",
+    "clauses/C-IBS-CBS-ONLY.toml",
+    "clauses/C-REQUIRED-DATA.toml",
+]
+
+[[changelog]]
+version = "0.1.0"
+date = "2026-11-21"
+notes = "Initial draft"

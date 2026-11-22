@@ -1,0 +1,17 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-COVERAGE"
+title = "Supported authorizers and municipalities"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Akela MUST support NF-e, NFC-e, MDF-e and CT-e at every authorizer of every UF, including the shared virtual and contingency authorizers.
+
+NFS-e MUST be issued only through the national model (Sefin Nacional and ADN). This covers MEI, Simples Nacional ME and EPP in every municipality, and every company in municipalities that use the national issuer.
+
+Municipal NFS-e systems kept under LC 214/2025 are not supported. A municipal system MAY be added, only by amending this RFC, for a municipality with a very large population or a very large number of companies.
+
+When an issuer would need an unsupported authorizer or municipal system, Akela MUST refuse to issue and MUST say which authorizer or system is missing."""

@@ -1,0 +1,17 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-CONFORMANCE"
+title = "Conformance comes from the authorizer"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+The expected result of every fiscal test MUST be a stored reference case: the sent XML, the authorizer's status code and its reason. A fiscal test whose expected result has no reference case MUST fail.
+
+Tests and data from third-party libraries MAY be used only as inputs, never as expected results.
+
+When a new Technical Note or schema package applies to an authorizer, its reference cases MUST be resent in homologation and the responses compared with the stored ones before the change reaches production.
+
+Legal rules that the authorizer does not check (contingency deadlines, document obligations by date or tax regime) MUST have tests derived from the legal text."""

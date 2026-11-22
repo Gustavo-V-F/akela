@@ -1,0 +1,13 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-REQUIRED-DATA"
+title = "Required data per operation"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+Each operation that produces a document MUST declare the data it requires from each party.
+
+The Location app MUST show, before issuance, which required data is missing and why, and MUST do so offline."""
