@@ -31,6 +31,8 @@ curl -sSL -o "$work/softhsm.zip" https://github.com/disig/SoftHSM2-for-Windows/r
 unzip -q "$work/softhsm.zip" -d "$work"
 export PATH="$work/SoftHSM2/bin:$PATH"
 module=$(cygpath -w "$work/SoftHSM2/lib/softhsm2-x64.dll")
+# softhsm2-util.exe is 32-bit and loads the 32-bit module; both use the same token directory.
+export SOFTHSM_UTIL_MODULE=$(cygpath -w "$work/SoftHSM2/lib/softhsm2.dll")
 "$here/provision-pkcs11.sh" "$fx" "$module"
 
 CUSTODY_FIXTURES=$(cygpath -w "$fx") \

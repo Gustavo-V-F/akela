@@ -64,7 +64,11 @@ try {
     Write-Host "card in reader $($reader.Nr): $($reader.Name)"
 
     # Instantiate the applet, then generate the key on the card and certify it with the test CA.
-    Invoke-Tool $opensc -r $reader.Nr --send-apdu 80b80000120ba000000308000010000100050000020F0F7f
+    # Windows probes a newly inserted card, so the first connections can report it absent.
+    foreach ($i in 1..15) {
+        try { Invoke-Tool $opensc -r $reader.Nr --send-apdu 80b80000120ba000000308000010000100050000020F0F7f; break }
+        catch { if ($i -eq 15) { throw }; Start-Sleep 2 }
+    }
     Invoke-Tool $ykpiv -r $reader.Name -a set-chuid -a set-ccc
     Invoke-Tool $ykpiv -r $reader.Name -s 9a -a generate -A RSA2048 -o "$work\card.pub"
     Invoke-Tool $ykpiv -r $reader.Name -s 9a -P $pin -a verify-pin -a request-certificate -S '/CN=akela-custody-card/' -i "$work\card.pub" -o "$work\card.csr"
