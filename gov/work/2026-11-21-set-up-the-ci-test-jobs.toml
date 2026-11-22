@@ -32,6 +32,6 @@ status = "done"
 category = "added"
 
 [[content.acceptance_criteria]]
-text = "The repository README states that GitHub is a read-only mirror and that pull requests and issues go to OneDev."
+text = "The repository front page states that GitHub is a read-only mirror and that pull requests and issues go to OneDev."
 status = "done"
 category = "added"

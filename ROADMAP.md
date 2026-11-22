@@ -35,7 +35,6 @@ Done when a 3-node rqlite test (kill one node, a new Leader is elected) runs on 
   - NFS-e, in the national restricted environment (Produção Restrita, Sefin Nacional/ADN);
   - MDF-e, at SVRS;
   - CT-e, at the issuer state's authorizer.
-- Enable the document distribution service, for recipient acknowledgement.
 
 This covers one test issuer in one UF plus the national NFS-e restricted environment (Produção Restrita). Other authorizers are homologated, when needed, as part of 3.3, with an issuer each authorizer accepts: an issuer of that UF for a UF's own SEFAZ, or an issuer of any served UF for SVRS and SVAN. In a UF where Akela's company has no establishment, its own CNPJ becomes that issuer when the UF's SEFAZ registers it in the homologation CCC as a test taxpayer (`indContribTeste`, Boletim Técnico 2015.001 - CCC; NT 2026.007 v1.10 stopped the Receita Federal registry checks from rejecting it). SP and RS take this request through GS1 Brasil (`nfe@gs1br.org`); other UFs by request to their SEFAZ.
 
