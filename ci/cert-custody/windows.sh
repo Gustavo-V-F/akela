@@ -6,7 +6,6 @@ set -euo pipefail
 # GitHub shows annotations publicly; job logs need a token.
 [ -z "${GITHUB_ACTIONS:-}" ] || trap 'rc=$?; echo "::error file=ci/cert-custody/${0##*/},line=$LINENO::exit $rc from: $BASH_COMMAND"' ERR
 here=$(cd "$(dirname "$0")" && pwd)
-choco install -y --no-progress softhsm >/dev/null
 work=$(mktemp -d)
 # Runs the tests; on GitHub, failing assertions also become annotations.
 annotate_tests() {
@@ -27,12 +26,11 @@ done
 mkdir "$work/tokens"
 printf 'directories.tokendir = %s\nobjectstore.backend = file\n' "$(cygpath -m "$work/tokens")" >"$work/softhsm2.conf"
 export SOFTHSM2_CONF=$(cygpath -w "$work/softhsm2.conf")
-# The Chocolatey package's layout is not documented; find the tool and the 64-bit module.
-util=$(find /c/SoftHSM2 "/c/Program Files/SoftHSM2" -iname softhsm2-util.exe 2>/dev/null | head -1 || true)
-dll=$(find /c/SoftHSM2 "/c/Program Files/SoftHSM2" -iname 'softhsm2-x64.dll' 2>/dev/null | head -1 || true)
-[ -n "$util" ] && [ -n "$dll" ] || { echo "::error::SoftHSM2 not found: util='$util' dll='$dll'"; exit 1; }
-export PATH="$(dirname "$util"):$PATH"
-module=$(cygpath -w "$dll")
+# SoftHSM2 portable build for Windows (the Chocolatey "softhsm" package installs nothing).
+curl -sSL -o "$work/softhsm.zip" https://github.com/disig/SoftHSM2-for-Windows/releases/download/v2.5.0/SoftHSM2-2.5.0-portable.zip
+unzip -q "$work/softhsm.zip" -d "$work"
+export PATH="$work/SoftHSM2/bin:$PATH"
+module=$(cygpath -w "$work/SoftHSM2/lib/softhsm2-x64.dll")
 "$here/provision-pkcs11.sh" "$fx" "$module"
 
 CUSTODY_FIXTURES=$(cygpath -w "$fx") \

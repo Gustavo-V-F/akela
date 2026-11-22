@@ -40,12 +40,19 @@ $jc = Start-Process java -PassThru -WorkingDirectory $Applet -RedirectStandardOu
     -ArgumentList '-cp', 'piv-applet;jcardsim.jar', 'com.licel.jcardsim.remote.VSmartCard', 'jcardsim.cfg'
 try {
     $reader = $null
+    $PSNativeCommandUseErrorActionPreference = $false # opensc-tool exits 1 while no card is present
     foreach ($i in 1..60) {
         $line = & $opensc --list-readers 2>$null | Where-Object { $_ -match '^\s*(\d+)\s+Yes\s+(.*\S)\s*$' } | Select-Object -First 1
         if ($line -and $line -match '^\s*(\d+)\s+Yes\s+(.*\S)\s*$') { $reader = @{ Nr = $Matches[1]; Name = $Matches[2] }; break }
         Start-Sleep 1
     }
-    if (-not $reader) { & $opensc --list-readers; throw 'no reader shows the emulated card' }
+    if (-not $reader) {
+        $readers = (& $opensc --list-readers 2>&1 | Out-String) -replace '\r?\n', ' | '
+        $pnp = (Get-PnpDevice -Class SmartCardReader -ErrorAction SilentlyContinue | ForEach-Object { "$($_.FriendlyName)=$($_.Status)" }) -join ', '
+        $jcerr = (Get-Content "$work\jcardsim.err", "$work\jcardsim.out" -ErrorAction SilentlyContinue | Select-Object -Last 5) -join ' | '
+        throw "no reader shows the emulated card; readers: $readers; PnP: $pnp; jCardSim: $jcerr"
+    }
+    $PSNativeCommandUseErrorActionPreference = $true
     Write-Host "card in reader $($reader.Nr): $($reader.Name)"
 
     # Instantiate the applet, then generate the key on the card and certify it with the test CA.
