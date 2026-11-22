@@ -34,3 +34,52 @@ jobs:
       - uses: actions/checkout@v7
       - run: rustup target add aarch64-apple-ios
       - run: cargo build --manifest-path ci/hello/Cargo.toml --target aarch64-apple-ios
+
+  # Issuer certificate custody (ADR-0005, WI-2026-11-22-001); Linux runs on OneDev.
+  cert-custody-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - run: ci/cert-custody/windows.sh
+
+  cert-custody-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: ci/cert-custody/macos.sh
+
+  piv-applet:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "8"
+      - run: command -v ant || sudo apt-get install -y -qq ant
+      - run: ci/cert-custody/build-piv-applet.sh "$RUNNER_TEMP/piv"
+      - uses: actions/upload-artifact@v7
+        with:
+          name: piv-applet
+          path: ${{ runner.temp }}/piv
+
+  cert-custody-windows-smartcard:
+    needs: piv-applet
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: "8"
+      - uses: actions/download-artifact@v8
+        with:
+          name: piv-applet
+          path: ${{ runner.temp }}/piv
+      - shell: bash
+        run: ci/cert-custody/make-fixtures.sh "$(cygpath -u "$RUNNER_TEMP")/fixtures"
+      - shell: pwsh
+        run: ci/cert-custody/windows-smartcard.ps1 -Fixtures "$env:RUNNER_TEMP\fixtures" -Applet "$env:RUNNER_TEMP\piv"

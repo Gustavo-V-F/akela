@@ -1,0 +1,23 @@
+# Feasibility tests for issuer certificate custody (roadmap 2.2, ADR-0005, WI-2026-11-22-001).
+# shortcut: standalone crate like ci/hello; its store code moves into the fiscal crates when product code starts.
+[package]
+name = "akela-ci-cert-custody"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+cryptoki = "0.12"
+p12-keystore = "0.4"
+ring = "0.17"
+rsa = "0.9"
+rustls = { version = "0.23", default-features = false, features = ["ring", "std", "tls12"] }
+sha1 = { version = "0.10", features = ["oid"] }
+sha2 = { version = "0.10", features = ["oid"] }
+x509-parser = "0.18"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61", features = ["Win32_Foundation", "Win32_Security_Cryptography"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+security-framework = "3"
