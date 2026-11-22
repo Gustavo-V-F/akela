@@ -10,6 +10,6 @@ status = "active"
 text = """
 Authorizer status received from the cloud's authorizer-status service MUST be treated as auxiliary.
 
-Before switching to or from contingency, the Location MUST confirm the authorizer's state with the authorizer's own service-status query. Without that service, the Location MUST decide from the authorizer's responses alone.
+Before switching to a contingency mode that needs the network (SVC, EPEC), or back to normal mode, the Location MUST confirm the authorizer's state with the authorizer's own service-status query. Modes that need no network (FS-DA, offline contingency) MAY be entered whenever the authorizer cannot be reached.
 
 NFS-e issuance MUST NOT depend on any availability signal."""

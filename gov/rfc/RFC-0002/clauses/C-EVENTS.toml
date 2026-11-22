@@ -8,11 +8,13 @@ status = "active"
 
 [content]
 text = """
-Akela MUST support, at every supported authorizer:
+Akela MUST support every event that the legislation lets an issuer or a recipient register for the documents it supports, each registered where the legislation requires (the issuer's authorizer, the SVC, SVRS or the Ambiente Nacional). Events created by a new Technical Note MUST be added. The events include at least:
 
-- NF-e and NFC-e: cancellation, and voiding of unused numbers (a separate service, not an event);
-- NF-e only: correction letter (NFC-e rejects it, rejection 784);
-- MDF-e: cancellation and closure;
-- CT-e (model 57): cancellation, correction letter, EPEC (registered at the contingency authorizer, SVC), multimodal records, and delivery receipt and its cancellation.
+- NF-e and NFC-e: cancellation; voiding of unused numbers (a separate service, not an event); link to a payment transaction (110300); financial reconciliation (ECONF, 110750) and its cancellation (110751);
+- NFC-e only: cancellation by substitution (110112);
+- NF-e only: correction letter (NFC-e rejects it, rejection 784); EPEC (registered at the Ambiente Nacional); interested party, carrier (110150); delivery receipt (110130) and its cancellation (110131); failed delivery (110192) and its cancellation (110193); extension requests for goods sent for industrialization and their cancellations (111500 to 111503, where the UF implements them);
+- NF-e, IBS/CBS events registered at SVRS (NT 2025.002): issuer events 112110, 112120, 112130, 112140 and 112150; credit appropriation request (211110); recipient events 211124, 211128, 211130, 211140 and 211150; successor events 212110 and 212120; and event cancellation (110001);
+- MDF-e: cancellation, closure, inclusion of a driver, inclusion of a DF-e, payment of the transport operation and change of that payment;
+- CT-e (model 57): cancellation, correction letter, EPEC (registered at the SVC), multimodal records, and delivery receipt and its cancellation.
 
 For purchase NF-e, Akela MUST query received documents through the national distribution service and MUST register the recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed) at the Ambiente Nacional."""

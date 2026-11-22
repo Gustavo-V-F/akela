@@ -12,6 +12,6 @@ The expected result of every test of an authorizer's behaviour MUST be a stored 
 
 Tests and data from third-party libraries MAY be used only as inputs, never as expected results.
 
-When a new Technical Note or schema package applies to an authorizer, its reference cases MUST be resent in homologation and the responses compared with the stored ones before the change reaches production.
+When a new Technical Note or schema package applies to an authorizer, its reference cases MUST be resent in homologation and the responses compared with the stored ones before Akela's support for that change reaches production.
 
 Legal rules that the authorizer does not check (contingency deadlines, document obligations by date or tax regime) MUST have tests derived from the legal text."""

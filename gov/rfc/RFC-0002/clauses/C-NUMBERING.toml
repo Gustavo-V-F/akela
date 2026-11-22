@@ -8,7 +8,7 @@ status = "active"
 
 [content]
 text = """
-Documents and declarations with issuer-assigned numbers (NF-e, NFC-e, MDF-e, CT-e and the DPS) MUST be numbered per issuer, model and series, each series with its own sequence.
+Documents and declarations with issuer-assigned numbers (NF-e, NFC-e, MDF-e, CT-e and the DPS) MUST be numbered per issuer, document type and series, each series with its own sequence.
 
 Only the Leader of the Location Cluster MAY assign a number in the Location's normal series ([[RFC-0001:C-LEADER-AUTHORITY]]). The same issuer, model, series and number MUST NOT be assigned twice, including while the Location is offline.
 

@@ -1,0 +1,17 @@
+#:schema ../../../schema/clause.schema.json
+
+[govctl]
+id = "C-CERTIFICATE-CUSTODY"
+title = "Certificate custody and issuance permission"
+kind = "normative"
+status = "active"
+
+[content]
+text = """
+An issuer's certificate and private key MUST be usable only on the Location machines a manager designates for that issuer. They MUST NOT be stored, even encrypted, on the Cloud Node or on any machine outside the Location's network, and MUST NOT be part of the data replicated by the Location Cluster.
+
+Issuance MAY be requested from any client of the Location app, including a phone; the document MUST then be signed on a designated machine.
+
+Only users to whom a manager has granted the issuance permission MAY issue, cancel or register events for the issuer's documents.
+
+Akela MUST provide, through its own agent and for each supported operating system, a way to install and renew a certificate on all of an issuer's designated machines at once. A certificate installed or held by other means (for example an A3 token's driver) MAY be referenced instead; its installation and renewal are then the user's responsibility, not Akela's."""

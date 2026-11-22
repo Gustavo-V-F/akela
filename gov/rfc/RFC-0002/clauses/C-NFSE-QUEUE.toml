@@ -10,4 +10,4 @@ status = "active"
 text = """
 When Sefin Nacional cannot be reached or fails to answer, the DPS MUST stay queued at the Location and be retried automatically.
 
-Before each retry, the Location MUST query Sefin Nacional by the DPS identifier, and MUST NOT resend a DPS whose NFS-e was already generated. No DPS MAY produce two NFS-e."""
+Before each retry, the Location MUST query Sefin Nacional by the DPS identifier, and MUST NOT resend a DPS whose NFS-e was already generated. Akela MUST NOT cause one DPS to produce two NFS-e."""

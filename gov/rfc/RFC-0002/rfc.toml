@@ -21,6 +21,7 @@ title = "Specification"
 clauses = [
     "clauses/C-ISSUER-PER-LOCATION.toml",
     "clauses/C-ISSUANCE-AT-LOCATION.toml",
+    "clauses/C-CERTIFICATE-CUSTODY.toml",
     "clauses/C-COVERAGE.toml",
     "clauses/C-SUPPORTED-AUTHORIZER.toml",
     "clauses/C-CONFORMANCE.toml",

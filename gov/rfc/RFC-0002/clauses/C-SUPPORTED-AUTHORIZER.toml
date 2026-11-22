@@ -10,7 +10,7 @@ status = "active"
 text = """
 An authorizer MUST be declared supported only after it has reference cases, from real homologation, for every document type and event Akela issues there.
 
-Reference cases for an authorizer MUST be produced by an issuer that the authorizer accepts in homologation: for a UF's own SEFAZ, an issuer of that UF; for a shared virtual authorizer, an issuer of any UF it serves.
+Reference cases for an authorizer MUST be produced by an issuer that the authorizer accepts in homologation: for a UF's own SEFAZ, an issuer of that UF; for a shared virtual authorizer, an issuer of any UF it serves. The same applies to the events Akela registers at the Ambiente Nacional.
 
 Reference cases come only from homologation. Support declared from them MUST NOT be presented as validated in production: production behaviour at an authorizer is validated only through a customer, or a separate entity that allows tests, issuing real documents there.
 

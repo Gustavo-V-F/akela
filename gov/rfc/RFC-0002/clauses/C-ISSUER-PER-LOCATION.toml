@@ -8,6 +8,6 @@ status = "active"
 
 [content]
 text = """
-Each Location MUST issue as exactly one issuer. Two Locations MUST NOT share an issuer.
+Each Location MUST issue as exactly one issuer, the taxpayer it belongs to ([[RFC-0001:C-TERMS]]). Two Locations MUST NOT share an issuer: an issuer with several state registrations on one network (for example a rural producer's properties joined by a VPN) is one Location, and different issuers on the same network are different Locations.
 
 Each issuer's documents MUST be signed with that issuer's own ICP-Brasil digital certificate."""

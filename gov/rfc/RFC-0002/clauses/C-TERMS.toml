@@ -9,8 +9,9 @@ status = "active"
 [content]
 text = """
 - **Issuer**: the taxpayer that issues a document, identified by CNPJ, or by CPF where the law allows (for example a rural producer); in Akela, one per Location.
-- **Authorizer**: the tax service that authorizes or generates a document: a UF's own SEFAZ, a shared virtual authorizer (SVRS, SVAN, SVSP), a contingency authorizer (SVC-AN, SVC-RS, SVC-SP), or the national NFS-e service (Sefin Nacional, with documents shared in ADN).
+- **Authorizer**: the tax service that authorizes or generates a document: a UF's own SEFAZ, a shared virtual authorizer (SVRS, SVAN, SVSP), a contingency authorizer (SVC: SVC-AN, SVC-RS, SVC-SP), or the national NFS-e service (Sefin Nacional, with documents shared in ADN).
 - **Homologation**: an authorizer's test environment, without legal validity; for the national NFS-e it is the restricted environment (Produção Restrita).
-- **Reference case**: a document sent to an authorizer in homologation, stored with the authorizer's status code and reason.
+- **Ambiente Nacional**: the national NF-e environment that registers events not sent to the issuer's authorizer (NF-e EPEC, recipient acknowledgement) and runs the distribution service.
+- **Reference case**: a document, event or service request sent in homologation to an authorizer or to the Ambiente Nacional, stored with the status code and reason returned.
 - **DPS**: the service declaration that the issuer sends to Sefin Nacional; Sefin Nacional validates it and generates the NFS-e.
 - **Reserved series**: a document series assigned to one machine for use only while it operates as primary after "Take over as primary" ([[RFC-0001:C-MANUAL-RECOVERY]])."""

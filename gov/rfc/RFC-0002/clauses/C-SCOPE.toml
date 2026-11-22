@@ -8,8 +8,8 @@ status = "active"
 
 [content]
 text = """
-This RFC specifies how Akela issues and transmits Brazilian fiscal documents for its customers: any taxpayer in Brazil (a company, or an individual where the law allows, such as a rural producer), in any UF and municipality, issuing its own documents through Akela with its own digital certificate. Akela's own company may use the product the same way.
+This RFC specifies how Akela issues and transmits Brazilian fiscal documents for its customers: any taxpayer in Brazil (a company, or an individual where the law allows, such as a rural producer), in any UF, and in every municipality covered by [[RFC-0002:C-COVERAGE]], issuing its own documents through Akela with its own digital certificate. Akela's own company may use the product the same way.
 
-It covers: who issues and where the certificate lives; which documents, authorizers and municipalities are supported; numbering and series; offline contingency and retries; the authorizer status signal; document events; and how conformance is proven.
+It covers: who issues, where an issuer's certificate may be used and who may issue; which documents, authorizers and municipalities are supported; numbering and series; offline contingency and retries; the authorizer status signal; document events; and how conformance is proven.
 
 Out of scope, specified elsewhere: other countries; the tax calculation itself (rates, apportionment regimes, effective-dated tables); the domain operations that produce documents, specified in a later RFC; cloud-only Locations, specified with them; municipal NFS-e systems other than the national model. Location authority and recovery are defined in [[RFC-0001]]. Terms are defined in [[RFC-0002:C-TERMS]]."""

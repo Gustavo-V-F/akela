@@ -12,6 +12,6 @@ Each machine that may operate as primary MUST have its own reserved series per m
 
 A reserved series MUST be used only while that machine operates as primary after "Take over as primary"; the majority side MUST keep using the normal series.
 
-For NF-e and NFC-e, normal and reserved series MUST lie in the range NT 2023.002 assigns to the taxpayer's own software for the issuer's kind: 0–889 for a CNPJ issuer, 920–969 for a CPF issuer.
+For NF-e and NFC-e, normal and reserved series MUST lie in the range NT 2023.002 assigns to the taxpayer's own software for the issuer's kind: 0–889 for a CNPJ issuer, 920–969 for a CPF issuer. For MDF-e, a CPF issuer MUST use series 920–969. For CT-e, series 890–899 MUST NOT be used.
 
 After reconciliation, the Location MUST return to the normal series from its last number. A reserved series MUST continue its own sequence the next time it is used."""
