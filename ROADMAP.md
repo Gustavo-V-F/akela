@@ -111,6 +111,7 @@ Done when installation works offline and the laptop is always demoted before it 
 - **Events:** every issuer and recipient event of each document, per RFC-0002 C-EVENTS (Brazil fiscal core), plus number voiding.
 - **Purchase NF-e:** query of received documents and recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed).
 - **Numbering:** the Location's normal series plus a reserved series per machine.
+- **Software credentials per UF:** every credential a UF requires of the issuing software or its developer, per RFC-0002 C-SOFTWARE-CREDENTIAL (software credentials), and the technical responsible party on every document. Santa Catarina requires a credentialed PAF-NFC-e developer for NFC-e (RICMS/SC Anexo 11, art. 95-A; Ato DIAT 54/2026); a credential obtained by 2027-07-30 may present its conformity report (LCL, valid 24 months) until 2028-11-30 (Ato DIAT 54/2026 Anexo I).
 - **Contingency:** every mode per document (SVC, EPEC, FS-DA, offline), with the offline queue, automatic retries and deadline alerts.
 - **NFS-e retries:** check by DPS ID before each retry.
 - **Regression:** reference cases resent in homologation on each new Technical Note or schema package.

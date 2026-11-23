@@ -24,6 +24,7 @@ clauses = [
     "clauses/C-CERTIFICATE-CUSTODY.toml",
     "clauses/C-COVERAGE.toml",
     "clauses/C-SUPPORTED-AUTHORIZER.toml",
+    "clauses/C-SOFTWARE-CREDENTIAL.toml",
     "clauses/C-CONFORMANCE.toml",
     "clauses/C-NUMBERING.toml",
     "clauses/C-RESERVED-SERIES.toml",
@@ -39,4 +40,7 @@ clauses = [
 version = "0.1.0"
 date = "2026-11-21"
 notes = "Initial draft"
-changed = ["C-CERTIFICATE-CUSTODY also requires requests authenticated with the issuer certificate (mutual TLS) to be made from a designated machine"]
+added = ["C-SOFTWARE-CREDENTIAL requires every software or developer credential a UF imposes, and the technical responsible party on every document"]
+changed = [
+    "C-CERTIFICATE-CUSTODY also requires requests authenticated with the issuer certificate (mutual TLS) to be made from a designated machine",
+]
