@@ -187,6 +187,7 @@ Brazil tax reform (LC 214/2025):
 - ICMS, ISS and IPI coexist with IBS/CBS through 2032. ICMS and ISS are extinct in 2033. IPI is zeroed from 2027 except for products competing with the ZFM, but is not extinct.
 - In scope: IS; every apportionment regime (regular, Simples Nacional including the option to pay CBS/IBS outside it, MEI); specific regimes (fuels, financial services, real estate, health, cooperatives, etc.); differentiated regimes (30%/60% reductions, zero rate, ZFM and free-trade areas); split payment (after launch, still in scope).
 - All rates, shares and transition rules are effective-dated data, never hard-coded.
+- Out of scope: import declarations filed in government systems (Duimp, DIR); the import NF-e that follows a Duimp is in scope.
 - Out of scope: the 2026 test phase (CBS 0.9% / IBS 0.1% offset against PIS/Cofins) and PIS/Cofins calculation on issuance. PIS/Cofins fields are still parsed on received documents and on documents referenced by returns.
 - Confirm details against the law and the Receita Federal reference calculators (`ReceitaFederal/calculadora-rtc-*`, MIT) before specifying.
 

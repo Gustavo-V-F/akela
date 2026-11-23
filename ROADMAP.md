@@ -106,7 +106,21 @@ Done when installation works offline and the laptop is always demoted before it 
 **3.2 Local trust schemes.** Schemes 1 (approved list of self-signed certificates) and 2 (step-ca on a fixed machine), with the registry tables in the Location Cluster, manager approval, blocking, and the move from scheme 1 to 2 (from the approved list to a step-ca on a Location machine). Done when a Location under each scheme enrolls, blocks and re-enrolls machines with no internet at all.
 
 **3.3 Complete fiscal core.**
-- **Documents:** NF-e, NFC-e, NFS-e, MDF-e, CT-e first, for every UF authorizer and NFS-e through the national model (see Coverage in [CLAUDE.md](CLAUDE.md#fiscal-core-brazil)); then any other document the law defines, per the fiscal-core scope.
+- **Documents:** NF-e, NFC-e, NFS-e, MDF-e, CT-e first, for every UF authorizer and NFS-e through the national model (see Coverage in [CLAUDE.md](CLAUDE.md#fiscal-core-brazil)); then every other document the law defines, per the fiscal-core scope. The second group, from the Receita Federal schedule of IBS/CBS documents (Ato Conjunto RFB/CGIBS 4/2026, amended by 7/2026):
+  - CT-e OS (model 67): transport of people by travel agencies or carriers, of valuables and of excess baggage;
+  - BP-e (model 63): passenger tickets, including semi-urban, metropolitan and air transport;
+  - GTV-e: transport of valuables;
+  - DC-e: declaration of contents for goods moved without another fiscal document;
+  - NF3e: electric energy;
+  - NFCom: communication services;
+  - NFAg (model 75): water and sanitation;
+  - NFGas (model 76): piped gas;
+  - NF-e ABI (model 77): sale of real estate;
+  - NFS-e Via: road tolls;
+  - the NF-e cases with their own schedule: import (after the Duimp), monophasic fuels, and issuers that are not ICMS taxpayers;
+  - the DeRE (Declaração de Regimes Específicos), the declaration of taxpayers in specific regimes.
+
+  Import declarations filed in government systems (Duimp, DIR) are out of scope.
 - **Taxes and regimes:** ICMS, ISS, IPI, CBS, IBS, IS with effective-dated rates; regular, Simples Nacional and MEI; specific and differentiated regimes.
 - **Events:** every issuer and recipient event of each document, per RFC-0002 C-EVENTS (Brazil fiscal core), plus number voiding.
 - **Purchase NF-e:** query of received documents and recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed).
