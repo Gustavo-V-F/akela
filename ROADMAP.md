@@ -31,7 +31,7 @@ Done when a 3-node rqlite test (kill one node, a new Leader is elected) runs on 
 **1.3 Fiscal paperwork.**
 - Get the test issuer's digital certificate.
 - Get homologation access for:
-  - NF-e and NFC-e, at the issuer state's SEFAZ, including the NFC-e CSC token;
+  - NF-e and NFC-e, at the issuer state's SEFAZ, including the NFC-e CSC token. Where that SEFAZ accepts NFC-e only from a credentialed issuing software, even in homologation (Santa Catarina: RICMS/SC Anexo 11, art. 94), NFC-e is tested instead in another UF's homologation environment: first at SEFAZ-RS, which registers a company without an RS state registration for homologation only, on request to GS1 Brasil's national fiscal-documents group (`nfe@gs1br.org`); else in SEFAZ-AM's open developer environment, which needs no credential or state registration in Amazonas and uses a fixed CSC. If neither authorizes documents signed with the test issuer's certificate, NFC-e follows the rule in 2.2;
   - NFS-e, in the national restricted environment (Produção Restrita, Sefin Nacional/ADN);
   - MDF-e, at SVRS;
   - CT-e, at the issuer state's authorizer.
@@ -69,6 +69,8 @@ Then, in homologation, from Rust:
 - issue 1 MDF-e and close it;
 - issue 1 CT-e;
 - query received NF-e and register a recipient acknowledgement.
+
+A document is left out of this step only when no homologation environment accepts it without a credential of the issuing software or its developer that Akela does not hold yet; it then moves to 3.3.
 
 Done when the certificate does both jobs from every store on every operating system, and every document and event above is authorized or registered, with an estimate of the in-house work remaining.
 
@@ -125,7 +127,8 @@ Done when installation works offline and the laptop is always demoted before it 
 - **Events:** every issuer and recipient event of each document, per RFC-0002 C-EVENTS (Brazil fiscal core), plus number voiding.
 - **Purchase NF-e:** query of received documents and recipient acknowledgement (awareness, confirmation, unknown operation, operation not performed).
 - **Numbering:** the Location's normal series plus a reserved series per machine.
-- **Software credentials per UF:** every credential a UF requires of the issuing software or its developer, per RFC-0002 C-SOFTWARE-CREDENTIAL (software credentials), and the technical responsible party on every document. Santa Catarina requires a credentialed PAF-NFC-e developer for NFC-e (RICMS/SC Anexo 11, art. 95-A; Ato DIAT 54/2026); a credential obtained by 2027-07-30 may present its conformity report (LCL, valid 24 months) until 2028-11-30 (Ato DIAT 54/2026 Anexo I).
+- **Homologation behind a software credential:** once Akela holds a UF's software credential, homologate there the documents that were tested elsewhere for lack of it (Santa Catarina: NFC-e at SVRS, including the CSC and offline contingency).
+- **Software credentials per UF:** every credential a UF requires of the issuing software or its developer, per RFC-0002 C-SOFTWARE-CREDENTIAL (software credentials), and the technical responsible party on every document. Santa Catarina requires a credentialed PAF-NFC-e developer for NFC-e (RICMS/SC Anexo 11, art. 95-A; Ato DIAT 54/2026), a credentialed PAF-BP-e developer for BP-e (Anexo 11, art. 168-B) and a credentialed system (CSPD) for NFCom (Anexo 7, art. 2); a credential obtained by 2027-07-30 may present its conformity report (LCL, valid 24 months) until 2028-11-30 (Ato DIAT 54/2026 Anexo I).
 - **Contingency:** every mode per document (SVC, EPEC, FS-DA, offline), with the offline queue, automatic retries and deadline alerts.
 - **NFS-e retries:** check by DPS ID before each retry.
 - **Regression:** reference cases resent in homologation on each new Technical Note or schema package.
