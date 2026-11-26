@@ -45,4 +45,7 @@ clauses = [
 version = "0.1.0"
 date = "2026-11-21"
 notes = "Initial draft"
-changed = ["Define a Location as one taxpayer on one network"]
+changed = [
+    "Define a Location as one taxpayer on one network",
+    "C-TERMS uses a store or a warehouse as Location examples, following the e-commerce market focus",
+]

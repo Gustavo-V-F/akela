@@ -8,7 +8,7 @@ Everything in this repository is written in **English**: code, identifiers, comm
 
 ## Product
 
-**Akela** (pronounced a-keh-LAH, /a.keˈla/, stress on the last syllable; spelled without an accent) is an ERP for any kind of business; its initial market focus is e-commerce and furniture/decor rental shops. The name comes from the wolf that leads the pack in Kipling's *The Jungle Book* (Hindi *akelā*, "alone"). Technical identifiers (crates, packages, binaries, repos, domains) use `akela`. Akela is open source; the repository is public.
+**Akela** (pronounced a-keh-LAH, /a.keˈla/, stress on the last syllable; spelled without an accent) is an ERP for any kind of business; its initial market focus is e-commerce. The name comes from the wolf that leads the pack in Kipling's *The Jungle Book* (Hindi *akelā*, "alone"). Technical identifiers (crates, packages, binaries, repos, domains) use `akela`. Akela is open source; the repository is public.
 
 Akela's core is fiscal issuance offered to customers: any taxpayer in Brazil (a company, or an individual where the law allows, such as a rural producer), in any UF and municipality, issues its own documents through Akela, signed with its own digital certificate. Akela's own company may also use the product to issue its documents.
 
@@ -28,7 +28,7 @@ Use exactly these terms, consistently, in code and docs.
 
 | Term | Meaning |
 | --- | --- |
-| Location | A business unit (e.g. a store or rental shop) with its own stock and finances, belonging to exactly one taxpayer (in Brazil, one CNPJ or one CPF) and running on one network (local network or VPN) that holds its Location Cluster. Different taxpayers are always different Locations, even on the same network. Never call it "site" (that word is reserved for the e-commerce **website**). |
+| Location | A business unit (e.g. a store or a warehouse) with its own stock and finances, belonging to exactly one taxpayer (in Brazil, one CNPJ or one CPF) and running on one network (local network or VPN) that holds its Location Cluster. Different taxpayers are always different Locations, even on the same network. Never call it "site" (that word is reserved for the e-commerce **website**). |
 | Location Cluster | The rqlite cluster holding one Location's data. |
 | Fixed machine | Wired desktop or server at the Location. |
 | Eligible laptop | Laptop on the Location's network, plugged in, stable for a few minutes. |
@@ -45,7 +45,7 @@ Use exactly these terms, consistently, in code and docs.
 | Orchestrator | Cloud service that drives website orders across Locations (saga). |
 | Generation | Number that changes every time a Location Cluster is recreated; part of the CDC `service_id`. |
 | Customer | The contracting company (tenant). Each customer has its own Locations, CA and data. |
-| Buyer | Person or company that buys or rents at a Location. |
+| Buyer | Person or company that buys at a Location. |
 | Technical key | Per-row identifier (UUIDv7) used for relations between tables. |
 | Readable code | Identifier humans read on screens, contracts and receipts. Never a key. |
 | Location Agent | Daemon on each fixed machine and laptop that manages `rqlited`, eligibility and certificates. |
@@ -106,7 +106,7 @@ Both procedures **create a new cluster from a copy and a new generation; never r
 
 **Take over as primary** (sole voter gone, offline): manager picks the laptop with the highest applied index → agent takes a backup (`/db/backup`, node running) → stops rqlite, moves old data aside (never deletes) → starts rqlite as a new single-node cluster → loads the copy with `/boot` → generates a **new generation** (mandatory: a new cluster restarts Raft indexes — confirmed with rqlite v9.4.5 — and the CDC Receiver would drop new events as duplicates) → when online: register the generation in the Central Registry, wipe the Cloud Node and add it to the new cluster → other laptops (replicas) wipe and rejoin without reconciliation → the old primary's data is compared with the new cluster, records only it has are inserted, then it is wiped and rejoins.
 
-Why reconciliation is needed: with a single voter, writes commit on it alone and replicas lag by seconds. A rental confirmed on the old primary just before it suspended exists only there; the new cluster from the replica's copy shows the item as free.
+Why reconciliation is needed: with a single voter, writes commit on it alone and replicas lag by seconds. A sale of the last unit confirmed on the old primary just before it suspended exists only there; the new cluster from the replica's copy shows the item as still in stock.
 
 **Location disaster** (destroyed, stolen, hardware lost): a person confirms out-of-band (phone, visit) → declare the disaster in the Central Registry with a new generation and revoke old nodes' credentials → copy the Cloud Node into a new cloud cluster, which becomes that Location's authority → the CDC Receiver accepts the new generation's `service_id` → new machines join that cluster and the watcher moves leadership back to the Location → anything old machines did after the declaration is divergence, reconciled manually.
 
@@ -170,7 +170,7 @@ Single source of configuration; agents read from it who they are, whom they talk
 Fiscal issuance is the core of the system: every operation ends in a fiscal document when the law requires, and stock, finance and orders work around it.
 
 General rules:
-- **Scope:** each country's fiscal core covers every taxation model, tax regime, document and operation type its law defines, for any kind of business. Never limit fiscal rules by Akela's initial market (e-commerce, rental). Only rules no longer in force at launch (2027) are left out.
+- **Scope:** each country's fiscal core covers every taxation model, tax regime, document and operation type its law defines, for any kind of business. Never limit fiscal rules by Akela's initial market (e-commerce). Only rules no longer in force at launch (2027) are left out.
 - Fiscal rules are separated **per country**: each defines its documents, the data each operation requires from each party, numbering and transmission. Each country implements only what its law requires (e.g. the US: sales tax per jurisdiction and exemption certificates, no e-invoicing).
 - Fiscal/financial pending items: each operation declares required data; the system shows what's missing and why. Checked at the Location, works offline.
 - Issuer configured per Location (Brazil: CNPJ, or CPF where the law allows, such as a rural producer; state registration when the Location is an ICMS taxpayer; municipal registration for NFS-e). Two Locations never share an issuer. In the cloud, all of a customer's issuers are consolidated in that customer's tenant for administration.
@@ -202,15 +202,14 @@ Issuance requirements for Buyers:
 - Remote sale with NF-e: recipient name + CPF/CNPJ.
 - NFC-e in any non-presential sale (including home delivery): recipient address (since 2026-08-03, Ajuste SINIEF 9/2026).
 - NFC-e above the state's identification threshold: Buyer identification. Below it, in-person sale: identification optional, invoice still mandatory.
-- Rental of movable goods: NFS-e mandatory on every charge from 2027-01-01, including Simples Nacional, per Ato Conjunto RFB/CGIBS 4/2026 as amended by Ato Conjunto RFB/CGIBS 7/2026.
 
 Typical uses, not exhaustive: every document is implemented for every operation type the law allows.
 
 | Document | Typical use | Issuer | Authorizer |
 | --- | --- | --- | --- |
-| NF-e (55) | B2B and interstate sales, returns, inbound; shipment of goods for rental without ICMS (SP: CFOP 5.908/6.908) and return of rented goods | The Location. Return in SP: ICMS-taxpayer lessee issues outbound NF-e (CFOP 5.909/6.909); non-taxpayer → Location issues inbound NF-e (CFOP 1.909/2.909) referencing the shipment NF-e. Other UFs: per their RICMS | Own SEFAZ (AM, BA, GO, MG, MS, MT, PE, PR, RS, SP), SVRS (other UFs except MA), SVAN (MA). Contingency: SVC-AN or SVC-RS per UF |
+| NF-e (55) | B2B and interstate sales, e-commerce shipments to consumers in other UFs, returns, inbound | The Location | Own SEFAZ (AM, BA, GO, MG, MS, MT, PE, PR, RS, SP), SVRS (other UFs except MA), SVAN (MA). Contingency: SVC-AN or SVC-RS per UF |
 | NFC-e (65) | In-person sale to end consumer | The Location | Own SEFAZ (AM, GO, MG, MS, MT, PR, RS, SP) or SVRS. Offline contingency on the machine |
-| NFS-e (national) | Rental of movable goods; services (assembly, installation); intra-municipal freight for third parties | The Location | Sefin Nacional (national issuer, registered in ADN). Municipal NFS-e systems are out of scope (see Coverage) |
+| NFS-e (national) | Services (assembly, installation); intra-municipal freight for third parties | The Location | Sefin Nacional (national issuer, registered in ADN). Municipal NFS-e systems are out of scope (see Coverage) |
 | MDF-e (58) | Goods transport in own/leased vehicle or with independent carrier, when the UF requires | Whoever transports (the Location for own delivery) | SVRS for all UFs |
 | CT-e (57) | Only when the Location provides inter-municipal/interstate transport to third parties | The transporting Location | Own SEFAZ (MG, MS, MT, PR, RS, SP), SVSP (AP, PE, RR) or SVRS (others). Contingency: SVC-SP or SVC-RS |
 

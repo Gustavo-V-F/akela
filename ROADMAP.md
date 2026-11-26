@@ -74,13 +74,12 @@ A document is left out of this step only when no homologation environment accept
 
 Done when the certificate does both jobs from every store on every operating system, and every document and event above is authorized or registered, with an estimate of the in-house work remaining.
 
-**2.3 Domain spec.** Products, stock, rentable units, rental contracts, sales, finance and hierarchical access. Each operation gets its rules, its required data and the fiscal document it produces. Also defines the readable-code details left open by RFC-0001 (Location core architecture): the Location code, the type letters, the sequence width, what happens when a sequence overflows, and the normal generation format without a Central Registry.
+**2.3 Domain spec.** Products, stock, sales, finance and hierarchical access. Each operation gets its rules, its required data and the fiscal document it produces. Also defines the readable-code details left open by RFC-0001 (Location core architecture): the Location code, the type letters, the sequence width, what happens when a sequence overflows, and the normal generation format without a Central Registry.
 
 **2.4 ⚠ Membership Manager + failure tests.** Build a prototype in containers, with a simulated Cloud Node. Test every scenario from the failure table, plus network partitions, latency and packet loss. Done when there are never two Leaders, no committed data is lost, and both of these are measured: the demotion window, and the extra write latency caused by the cloud vote.
 
 **2.5 ⚠ Business rules without transactions.** Each of these must be a single conditional statement:
 - reserve-if-free;
-- rental availability per period;
 - next readable code;
 - next fiscal number;
 - unique CPF/CNPJ per Location.
@@ -99,7 +98,7 @@ Done when concurrent-write tests show no double reservation or duplicate number.
 
 Done when installation works offline and the laptop is always demoted before it disappears.
 
-**2.7 Manual procedures.** Take over as primary, Location disaster, and reconciliation. Done when the "chair #7" example (a rental confirmed only on the suspended laptop) is reproduced and reconciled without loss.
+**2.7 Manual procedures.** Take over as primary, Location disaster, and reconciliation. Done when the "last unit" example (a sale of the last unit confirmed only on the suspended laptop) is reproduced and reconciled without loss.
 
 ## 3. Location product
 
@@ -134,11 +133,11 @@ Done when installation works offline and the laptop is always demoted before it 
 - **Regression:** reference cases resent in homologation on each new Technical Note or schema package.
 - **No cloud monitor yet:** the Location decides from the authorizer's own response.
 
-**3.4 Location app backend.** Stock, rentals, finance and orders on top of the fiscal core, all exposed through an API. Done when every domain operation works through the API alone.
+**3.4 Location app backend.** Stock, sales, finance and orders on top of the fiscal core, all exposed through an API. Done when every domain operation works through the API alone.
 
 **3.5 Location operations.** Local backup and restore, rqlite and agent upgrades without downtime, and local alerts (disk, node down, no majority).
 
-**3.6 Location app UI.** Dioxus desktop and web, consuming the Location app backend API (stock, rentals, finance and orders) built in 3.4.
+**3.6 Location app UI.** Dioxus desktop and web, consuming the Location app backend API (stock, sales, finance and orders) built in 3.4.
 
 **3.7 Mobile app on the Location network.** Dioxus mobile. The phone talks to a local node.
 
